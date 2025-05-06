@@ -165,7 +165,7 @@ const icon = themeToggle.querySelector('i');
 
 // Check for saved theme preference or use system preference
 const savedTheme = localStorage.getItem('theme') || 
-                   (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+ (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 document.documentElement.setAttribute('data-theme', savedTheme);
 
 // Update button based on current theme
