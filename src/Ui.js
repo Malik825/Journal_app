@@ -145,7 +145,7 @@ class UI {
         let displayContent = this.highlightText(entry.content, searchTerm);
 
         const entryElement = document.createElement('div');
-        entryElement.className = 'entry-content p-6 hover:bg-gray-50 cursor-pointer transition-colors';
+        entryElement.className = 'entry-content p-6  cursor-pointer transition-colors';
         entryElement.dataset.id = entry.id;
 
         entryElement.innerHTML = `
