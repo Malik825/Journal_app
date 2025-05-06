@@ -3,7 +3,7 @@
   --color-bg: #f8fafc;
   --color-text: #1e293b;
   --color-text-secondary: #64748b;
-  --color-primary: #3b82f6;
+  --color-primary:rgb(15 118 110);
   --color-surface: #ffffff;
   --color-border: #e2e8f0;
   --color-input-bg: #ffffff;
@@ -21,7 +21,7 @@
   --color-bg: #0f172a;
   --color-text: #e2e8f0;
   --color-text-secondary: #94a3b8;
-  --color-primary: #60a5fa;
+  --color-primary: rgb(15 118 110);
   --color-surface: #1e293b;
   --color-border: #334155;
   --color-input-bg: #334155;
@@ -113,9 +113,9 @@ textarea::placeholder {
 }
 /* Active mood icon style */
 .mood-label.active {
-  background-color: #3b82f6 !important;
+  background-color: rgb(15 118 110) !important;
   color: white;
-  border-color: #3b82f6;
+  border-color: rgb(15 118 110);
   transform: scale(1.1);
   transition: all 0.2s ease;
 }
