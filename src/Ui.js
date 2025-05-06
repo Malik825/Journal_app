@@ -16,17 +16,6 @@ class UI {
         this.modalTitle = document.getElementById('modal-title');
         this.modalContent = document.getElementById('modal-content');
         this.moodFilterButtons = document.querySelectorAll('.mood-filter-btn');
-        this.ttsBtn = document.getElementById('tts-btn');
-        this.aiSuggestBtn = document.getElementById('ai-suggest-btn');
-        this.summarizeBtn = document.getElementById('summarize-btn');
-        this.promptBtn = document.getElementById('prompt-btn');
-        this.settingsBtn = document.getElementById('settings-btn');
-        this.settingsModal = document.getElementById('settings-modal');
-        this.closeSettingsBtn = document.getElementById('close-settings');
-        this.ttsToggle = document.getElementById('tts-toggle');
-        this.aiToggle = document.getElementById('ai-toggle');
-        this.voiceSelect = document.getElementById('voice-select');
-        this.aiResponseContainer = document.getElementById('ai-response');
     }
 
     initEventListeners({
@@ -96,48 +85,6 @@ class UI {
                 onCloseModal();
             }
         });
-         // AI Feature buttons - only if elements exist
-    if (this.ttsBtn) {
-        this.ttsBtn.addEventListener('click', () => onTextToSpeech());
-    }
-    
-    if (this.aiSuggestBtn) {
-        this.aiSuggestBtn.addEventListener('click', () => onAISuggest());
-    }
-    
-    if (this.summarizeBtn) {
-        this.summarizeBtn.addEventListener('click', () => onSummarize());
-    }
-    
-    if (this.promptBtn) {
-        this.promptBtn.addEventListener('click', () => onGeneratePrompt());
-    }
-
-    // Settings controls - only if elements exist
-    if (this.settingsBtn) {
-        this.settingsBtn.addEventListener('click', () => this.openSettingsModal());
-    }
-    
-    if (this.closeSettingsBtn) {
-        this.closeSettingsBtn.addEventListener('click', () => this.closeSettingsModal());
-    }
-    
-    if (this.ttsToggle) {
-        this.ttsToggle.addEventListener('change', (e) => onTTSToggle(e.target.checked));
-    }
-    
-    if (this.aiToggle) {
-        this.aiToggle.addEventListener('change', (e) => onAIToggle(e.target.checked));
-    }
-    
-    if (this.voiceSelect) {
-        this.voiceSelect.addEventListener('change', (e) => onVoiceChange(e.target.value));
-    }
-
-    // Populate voice options if voice select exists
-    if (this.voiceSelect) {
-        this.populateVoiceOptions();
-    }
     }
 
     getFormData() {
