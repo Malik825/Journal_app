@@ -39,7 +39,9 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
 }
-
+h1{
+  font-family: 'Great Vibes';
+}
 .bg-white {
   background-color: var(--color-surface) !important;
 }
@@ -106,3 +108,14 @@ textarea::placeholder {
   background: var(--color-scrollbar-thumb-hover);
 }
 
+.active{
+  background: var(--color-primary) !important;
+}
+/* Active mood icon style */
+.mood-label.active {
+  background-color: #3b82f6 !important;
+  color: white;
+  border-color: #3b82f6;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
