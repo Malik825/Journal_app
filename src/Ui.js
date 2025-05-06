@@ -16,6 +16,7 @@ class UI {
         this.modalTitle = document.getElementById('modal-title');
         this.modalContent = document.getElementById('modal-content');
         this.moodFilterButtons = document.querySelectorAll('.mood-filter-btn');
+        this.onOpenEntry = null; // Add this line
     }
 
     initEventListeners({
@@ -36,7 +37,7 @@ class UI {
             e.preventDefault();
             onFormSubmit();
         });
-
+        this.onOpenEntry = onOpenEntry;
         // Clear form
         this.clearBtn.addEventListener('click', () => {
             onClearForm();
@@ -103,15 +104,15 @@ class UI {
     renderEntries(entries, { filter, searchTerm, selectedMood }) {
         // Clear container
         this.entriesContainer.innerHTML = '';
-
+    
         if (entries.length === 0) {
             this.entriesContainer.appendChild(this.noEntries);
             this.noEntries.classList.remove('hidden');
             return;
         }
-
+    
         this.noEntries.classList.add('hidden');
-
+    
         // Render each entry
         entries.forEach((entry, index) => {
             const entryElement = this.createEntryElement(entry, searchTerm);
@@ -119,13 +120,9 @@ class UI {
                 entryElement.classList.add('fade-in');
             }
             this.entriesContainer.appendChild(entryElement);
-
-            // Add click event to open entry
-            entryElement.addEventListener('click', () => {
-                onOpenEntry(entry.id);
-            });
         });
     }
+    
 
     createEntryElement(entry, searchTerm) {
         const entryDate = new Date(entry.date);
@@ -170,12 +167,30 @@ class UI {
         // Add click event to read more button
         entryElement.querySelector('.read-more').addEventListener('click', (e) => {
             e.stopPropagation();
-            onOpenEntry(entry.id);
+            if (this.onOpenEntry) {
+                this.onOpenEntry(entry.id);
+            }
         });
-
+    
+        // Make the whole entry clickable
+        entryElement.addEventListener('click', () => {
+            if (this.onOpenEntry) {
+                this.onOpenEntry(entry.id);
+            }
+        });
+    
         return entryElement;
     }
 
+/*************  ✨ Windsurf Command ⭐  *************/
+    /**
+     * Highlights search terms in the given text by wrapping each match in a
+     * `<span class="highlight">` element.
+     * @param {string} text - The text to highlight.
+     * @param {string} searchTerm - The term to highlight.
+     * @returns {string} The highlighted text.
+     */
+/*******  6efbd010-a577-4bb1-9e93-6f37efa130fa  *******/
     highlightText(text, searchTerm) {
         if (!searchTerm || !text) return text;
         
