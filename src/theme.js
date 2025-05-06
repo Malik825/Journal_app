@@ -46,3 +46,5 @@ class ThemeManager {
       this.updateButton(newTheme === 'dark');
     }
   }
+  
+  export default ThemeManager;

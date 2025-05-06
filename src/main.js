@@ -1,10 +1,12 @@
 import Storage from './storage.js';
 import UI from './Ui.js';
+import ThemeManager from './theme.js';
 
 class JournalApp {
     constructor() {
         this.storage = new Storage();
         this.ui = new UI();
+        this.themeManager = new ThemeManager();
         
         this.currentEntryId = null;
         this.searchTerm = '';
