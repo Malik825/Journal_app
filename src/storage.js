@@ -1,6 +1,19 @@
 class Storage {
     constructor() {
         this.entries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+        this.settings = JSON.parse(localStorage.getItem('journalSettings')) || {
+            ttsEnabled: true,
+            ttsVoice: null,
+            aiFeatures: true
+        };
+    }
+    getSettings() {
+        return this.settings;
+    }
+
+    updateSettings(newSettings) {
+        this.settings = { ...this.settings, ...newSettings };
+        localStorage.setItem('journalSettings', JSON.stringify(this.settings));
     }
 
     getAllEntries() {
