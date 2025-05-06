@@ -182,15 +182,6 @@ class UI {
         return entryElement;
     }
 
-/*************  ✨ Windsurf Command ⭐  *************/
-    /**
-     * Highlights search terms in the given text by wrapping each match in a
-     * `<span class="highlight">` element.
-     * @param {string} text - The text to highlight.
-     * @param {string} searchTerm - The term to highlight.
-     * @returns {string} The highlighted text.
-     */
-/*******  6efbd010-a577-4bb1-9e93-6f37efa130fa  *******/
     highlightText(text, searchTerm) {
         if (!searchTerm || !text) return text;
         
