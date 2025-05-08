@@ -1,6 +1,7 @@
+
+/* Updated Ui.js */
 class UI {
     constructor() {
-        // DOM Elements
         this.form = document.getElementById('journal-form');
         this.entriesContainer = document.getElementById('entries-container');
         this.noEntries = document.getElementById('no-entries');
@@ -16,7 +17,14 @@ class UI {
         this.modalTitle = document.getElementById('modal-title');
         this.modalContent = document.getElementById('modal-content');
         this.moodFilterButtons = document.querySelectorAll('.mood-filter-btn');
-        this.onOpenEntry = null; // Add this line
+        this.dashboardBtn = document.getElementById('dashboard-btn');
+        this.entriesBtn = document.getElementById('entries-btn');
+        this.entriesView = document.getElementById('entries-view');
+        this.dashboardView = document.getElementById('dashboard-view');
+        this.periodSelect = document.getElementById('period-select');
+        this.moodChartCanvas = document.getElementById('mood-chart');
+        this.moodChart = null;
+        this.onOpenEntry = null;
     }
 
     initEventListeners({
@@ -30,30 +38,29 @@ class UI {
         onCloseModal,
         onDeleteEntry,
         onEditEntry,
-        onOpenEntry
+        onOpenEntry,
+        onShowDashboard,
+        onShowEntries,
+        onPeriodChange
     }) {
-        // Form submission
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
             onFormSubmit();
         });
         this.onOpenEntry = onOpenEntry;
-        // Clear form
+
         this.clearBtn.addEventListener('click', () => {
             onClearForm();
         });
 
-        // Filter entries
         this.filterSelect.addEventListener('change', () => {
             onFilterChange(this.filterSelect.value);
         });
 
-        // Search functionality
         this.searchInput.addEventListener('input', (e) => {
             onSearch(e.target.value.trim().toLowerCase());
         });
 
-        // Mood filter buttons
         this.moodFilterButtons.forEach(button => {
             button.addEventListener('click', () => {
                 this.moodFilterButtons.forEach(btn => btn.classList.remove('active'));
@@ -62,28 +69,98 @@ class UI {
             });
         });
 
-        // Set "All Moods" as active by default
         document.querySelector('.mood-filter-btn[data-mood="all"]').classList.add('active');
 
-        // Print functionality
         this.printBtn.addEventListener('click', () => {
             onPrint();
         });
 
-        // Export functionality
         this.exportBtn.addEventListener('click', () => {
             onExport();
         });
 
-        // Modal controls
         this.closeModalBtn.addEventListener('click', () => onCloseModal());
         this.deleteEntryBtn.addEventListener('click', () => onDeleteEntry());
         this.editEntryBtn.addEventListener('click', () => onEditEntry());
 
-        // Close modal when clicking outside
         this.modal.addEventListener('click', (e) => {
             if (e.target === this.modal) {
                 onCloseModal();
+            }
+        });
+
+        this.dashboardBtn.addEventListener('click', () => onShowDashboard());
+        this.entriesBtn.addEventListener('click', () => onShowEntries());
+
+        this.periodSelect.addEventListener('change', () => {
+            onPeriodChange(this.periodSelect.value);
+        });
+    }
+
+    toggleView(view) {
+        if (view === 'entries') {
+            this.entriesView.classList.remove('hidden');
+            this.dashboardView.classList.add('hidden');
+            this.entriesBtn.classList.add('bg-indigo-600', 'text-white');
+            this.entriesBtn.classList.remove('bg-white', 'text-gray-800');
+            this.dashboardBtn.classList.add('bg-white', 'text-gray-800');
+            this.dashboardBtn.classList.remove('bg-indigo-600', 'text-white');
+        } else {
+            this.entriesView.classList.add('hidden');
+            this.dashboardView.classList.remove('hidden');
+            this.dashboardBtn.classList.add('bg-indigo-600', 'text-white');
+            this.dashboardBtn.classList.remove('bg-white', 'text-gray-800');
+            this.entriesBtn.classList.add('bg-white', 'text-gray-800');
+            this.entriesBtn.classList.remove('bg-indigo-600', 'text-white');
+        }
+    }
+
+    renderMoodChart(moodData, period) {
+        if (this.moodChart) {
+            this.moodChart.destroy();
+        }
+
+        this.moodChart = new Chart(this.moodChartCanvas, {
+            type: 'line',
+            data: {
+                labels: moodData.labels,
+                datasets: [{
+                    label: 'Average Mood',
+                    data: moodData.data,
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 0,
+                        max: 5,
+                        ticks: {
+                            stepSize: 1,
+                            callback: value => {
+                                const moods = { 1: 'Angry', 2: 'Sad', 3: 'Neutral', 4: 'Happy', 5: 'Very Happy' };
+                                return moods[value] || value;
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: context => {
+                                const value = context.parsed.y;
+                                return value ? `Mood: ${value.toFixed(2)}` : 'No data';
+                            }
+                        }
+                    }
+                }
             }
         });
     }
@@ -102,7 +179,6 @@ class UI {
     }
 
     renderEntries(entries, { filter, searchTerm, selectedMood }) {
-        // Clear container
         this.entriesContainer.innerHTML = '';
     
         if (entries.length === 0) {
@@ -113,7 +189,6 @@ class UI {
     
         this.noEntries.classList.add('hidden');
     
-        // Render each entry
         entries.forEach((entry, index) => {
             const entryElement = this.createEntryElement(entry, searchTerm);
             if (index === 0) {
@@ -123,13 +198,11 @@ class UI {
         });
     }
     
-
     createEntryElement(entry, searchTerm) {
         const entryDate = new Date(entry.date);
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = entryDate.toLocaleDateString(undefined, options);
 
-        // Mood icons mapping
         const moodIcons = {
             '1': { icon: 'fa-angry', color: 'text-red-500' },
             '2': { icon: 'fa-frown', color: 'text-orange-500' },
@@ -140,12 +213,11 @@ class UI {
 
         const mood = moodIcons[entry.mood] || moodIcons['3'];
 
-        // Highlight search terms in title and content
         let displayTitle = this.highlightText(entry.title, searchTerm);
         let displayContent = this.highlightText(entry.content, searchTerm);
 
         const entryElement = document.createElement('div');
-        entryElement.className = 'entry-content p-6  cursor-pointer transition-colors';
+        entryElement.className = 'entry-content p-6 cursor-pointer transition-colors';
         entryElement.dataset.id = entry.id;
 
         entryElement.innerHTML = `
@@ -164,7 +236,6 @@ class UI {
             </div>
         `;
 
-        // Add click event to read more button
         entryElement.querySelector('.read-more').addEventListener('click', (e) => {
             e.stopPropagation();
             if (this.onOpenEntry) {
@@ -172,7 +243,6 @@ class UI {
             }
         });
     
-        // Make the whole entry clickable
         entryElement.addEventListener('click', () => {
             if (this.onOpenEntry) {
                 this.onOpenEntry(entry.id);
@@ -195,8 +265,7 @@ class UI {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = entryDate.toLocaleDateString(undefined, options);
 
-        // Mood icons mapping
-        const moodIcons = {
+        const MoodIcons = {
             '1': { icon: 'fa-angry', text: 'Angry' },
             '2': { icon: 'fa-frown', text: 'Sad' },
             '3': { icon: 'fa-meh', text: 'Neutral' },
@@ -204,9 +273,8 @@ class UI {
             '5': { icon: 'fa-laugh', text: 'Very Happy' }
         };
 
-        const mood = moodIcons[entry.mood] || moodIcons['3'];
+        const mood = MoodIcons[entry.mood] || MoodIcons['3'];
 
-        // Highlight search terms in modal content if there's a search term
         let displayContent = this.highlightText(entry.content, searchTerm);
 
         this.modalTitle.innerHTML = this.highlightText(entry.title, searchTerm);
