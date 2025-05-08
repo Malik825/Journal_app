@@ -270,7 +270,7 @@ class UI {
 
         entryElement.innerHTML = `
             <div class="flex justify-between items-start mb-2">
-                <h3 class="text-lg font-medium text-gray-900">${displayTitle}</h3>
+                <h3 class="text-lg font-medium ">${displayTitle}</h3>
                 <div class="flex items-center">
                     <i class="fas ${mood.icon} ${mood.color} text-xl mr-2"></i>
                     <span class="text-sm text-gray-500">${formattedDate}</span>
