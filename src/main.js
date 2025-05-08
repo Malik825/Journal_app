@@ -1,3 +1,4 @@
+/* Updated main.js */
 import Storage from './storage.js';
 import UI from './Ui.js';
 
@@ -10,6 +11,7 @@ class JournalApp {
         this.searchTerm = '';
         this.selectedMood = 'all';
         this.currentFilter = 'all';
+        this.currentView = 'entries'; // Track current view (entries or dashboard)
         
         this.init();
     }
@@ -26,7 +28,10 @@ class JournalApp {
             onCloseModal: () => this.closeModal(),
             onDeleteEntry: () => this.deleteEntry(),
             onEditEntry: () => this.editEntry(),
-            onOpenEntry: (id) => this.openEntry(id)
+            onOpenEntry: (id) => this.openEntry(id),
+            onShowDashboard: () => this.showDashboard(),
+            onShowEntries: () => this.showEntries(),
+            onPeriodChange: (period) => this.updateMoodChart(period)
         });
         
         this.renderEntries();
@@ -53,12 +58,29 @@ class JournalApp {
     }
     
     renderEntries() {
+        this.currentView = 'entries';
+        this.ui.toggleView('entries');
         const entries = this.filterEntries(this.currentFilter);
         this.ui.renderEntries(entries, {
             filter: this.currentFilter,
             searchTerm: this.searchTerm,
             selectedMood: this.selectedMood
         });
+    }
+    
+    showDashboard() {
+        this.currentView = 'dashboard';
+        this.ui.toggleView('dashboard');
+        this.updateMoodChart('week');
+    }
+    
+    showEntries() {
+        this.renderEntries();
+    }
+    
+    updateMoodChart(period) {
+        const moodData = this.storage.getMoodTrends(period);
+        this.ui.renderMoodChart(moodData, period);
     }
     
     filterEntries(filter) {
@@ -89,12 +111,10 @@ class JournalApp {
             });
         }
         
-        // Apply mood filter
         if (this.selectedMood !== 'all') {
             filteredEntries = filteredEntries.filter(entry => entry.mood === this.selectedMood);
         }
         
-        // Apply search if there's a search term
         if (this.searchTerm) {
             filteredEntries = filteredEntries.filter(entry => {
                 return entry.title.toLowerCase().includes(this.searchTerm) || 
@@ -144,10 +164,7 @@ class JournalApp {
         const entry = this.storage.getEntryById(this.currentEntryId);
         if (!entry) return;
         
-        // Fill the form with entry data
         this.ui.fillFormWithEntry(entry);
-        
-        // Delete the old entry
         this.storage.deleteEntry(this.currentEntryId);
         
         this.closeModal();
@@ -160,7 +177,6 @@ class JournalApp {
     }
 }
 
-// Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new JournalApp();
 });
