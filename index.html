@@ -26,6 +26,10 @@
             <button id="export-btn" class="no-print bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 border border-gray-300 rounded-lg shadow-sm flex items-center">
                 <i class="fas fa-file-export mr-2"></i> Export
             </button>
+                        <!-- Add this inside the header div, after the export button -->
+<button id="theme-toggle" class="no-print bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 border border-gray-300 rounded-lg shadow-sm flex items-center">
+    <i class="fas fa-moon mr-2"></i> Dark Mode
+</button>
         </div>
     </header>
 
@@ -202,7 +206,8 @@
     </div>
 </div>
  
-    
+    <script type="module" src="./src/main.js"></script>
+    <script type="module" src="./src/analytics.js"></script>
     <script type="module" src="./src/analyticsDashboard.js"></script>
 </body>
 </html>
