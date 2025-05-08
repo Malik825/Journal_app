@@ -1,3 +1,4 @@
+/* src/main.js */
 import Storage from './storage.js';
 import UI from './Ui.js';
 
@@ -89,12 +90,10 @@ class JournalApp {
             });
         }
         
-        // Apply mood filter
         if (this.selectedMood !== 'all') {
             filteredEntries = filteredEntries.filter(entry => entry.mood === this.selectedMood);
         }
         
-        // Apply search if there's a search term
         if (this.searchTerm) {
             filteredEntries = filteredEntries.filter(entry => {
                 return entry.title.toLowerCase().includes(this.searchTerm) || 
@@ -144,10 +143,7 @@ class JournalApp {
         const entry = this.storage.getEntryById(this.currentEntryId);
         if (!entry) return;
         
-        // Fill the form with entry data
         this.ui.fillFormWithEntry(entry);
-        
-        // Delete the old entry
         this.storage.deleteEntry(this.currentEntryId);
         
         this.closeModal();
@@ -159,39 +155,40 @@ class JournalApp {
         this.ui.exportData(data);
     }
 }
-// Theme toggle functionality
-const themeToggle = document.getElementById('theme-toggle');
-const icon = themeToggle.querySelector('i');
 
-// Check for saved theme preference or use system preference
-const savedTheme = localStorage.getItem('theme') || 
- (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-document.documentElement.setAttribute('data-theme', savedTheme);
-
-// Update button based on current theme
-function updateThemeButton(isDark) {
-  if (isDark) {
-    icon.classList.replace('fa-moon', 'fa-sun');
-    themeToggle.textContent = ' Light Mode';
-  } else {
-    icon.classList.replace('fa-sun', 'fa-moon');
-    themeToggle.textContent = ' Dark Mode';
-  }
-  themeToggle.prepend(icon);
-}
-
-updateThemeButton(savedTheme === 'dark');
-
-// Toggle theme
-themeToggle.addEventListener('click', () => {
-  const currentTheme = document.documentElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  
-  document.documentElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  updateThemeButton(newTheme === 'dark');
-});
-// Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+        if (icon) {
+            const savedTheme = localStorage.getItem('theme') || 
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            function updateThemeButton(isDark) {
+                if (isDark) {
+                    icon.classList.replace('fa-moon', 'fa-sun');
+                    themeToggle.textContent = ' Light Mode';
+                } else {
+                    icon.classList.replace('fa-sun', 'fa-moon');
+                    themeToggle.textContent = ' Dark Mode';
+                }
+                themeToggle.prepend(icon);
+            }
+
+            updateThemeButton(savedTheme === 'dark');
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeButton(newTheme === 'dark');
+            });
+        }
+    }
+
+    // Initialize the app
     new JournalApp();
 });

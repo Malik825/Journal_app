@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom';
+// /* tests/setup.js */
+// import '@testing-library/jest-dom';
+// import 'jest-environment-jsdom';
 
-// Mock any global browser APIs if needed
-global.matchMedia = global.matchMedia || function() {
-  return {
-    matches: false,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-  };
-};
+// // Mock window.matchMedia for theme preference testing
+// global.matchMedia = global.matchMedia || jest.fn().mockImplementation(query => ({
+//   matches: query === '(prefers-color-scheme: dark)' ? true : false, // Default to dark for testing
+//   addListener: jest.fn(),
+//   removeListener: jest.fn(),
+// }));

@@ -1,276 +1,474 @@
+/* tests/journal.test.js */
 import Storage from '../storage.js';
-import UI from '../Ui.js';
 import JournalApp from '../main.js';
-
-// Set up JSDOM with all required elements
-beforeEach(() => {
-  document.body.innerHTML = `
-    <div>
-      <!-- Form elements -->
-      <form id="journal-form">
-        <input id="entry-date" value="2023-01-01">
-        <input id="entry-title" value="Test Title">
-        <textarea id="entry-content">Test Content</textarea>
-        <input type="radio" name="mood" value="1" id="mood-1">
-        <input type="radio" name="mood" value="2" id="mood-2">
-        <input type="radio" name="mood" value="3" id="mood-3" checked>
-      </form>
-      
-      <!-- Entries container -->
-      <div id="entries-container"></div>
-      <div id="no-entries" class="hidden">No entries</div>
-      
-      <!-- Filter controls -->
-      <select id="filter-select"><option value="all">All</option></select>
-      <input id="search-input">
-      
-      <!-- Buttons -->
-      <button id="clear-btn"></button>
-      <button id="print-btn"></button>
-      <button id="export-btn"></button>
-      
-      <!-- Modal -->
-      <div id="entry-modal" class="hidden">
-        <div id="modal-title"></div>
-        <div id="modal-content"></div>
-        <button id="close-modal"></button>
-        <button id="delete-entry"></button>
-        <button id="edit-entry"></button>
-      </div>
-      
-      <!-- Mood filters -->
-      <button class="mood-filter-btn" data-mood="all"></button>
-      <button class="mood-filter-btn" data-mood="1"></button>
-      
-      <!-- Theme toggle -->
-      <button id="theme-toggle">
-        <i class="fas fa-moon"></i>
-      </button>
-    </div>
-  `;
-});
+import UI from '../Ui.js';
 
 // Mock localStorage
-const localStorageMock = (function() {
+const localStorageMock = (function () {
   let store = {};
   return {
-    getItem: function(key) {
-      return store[key] || null;
-    },
-    setItem: function(key, value) {
-      store[key] = value.toString();
-    },
-    clear: function() {
-      store = {};
-    }
+    getItem: jest.fn((key) => store[key] || null),
+    setItem: jest.fn((key, value) => (store[key] = value.toString())),
+    clear: jest.fn(() => (store = {})),
+    removeItem: jest.fn((key) => delete store[key]),
   };
 })();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
-});
+// Mock DOM environment
+document.body.innerHTML = `
+  <form id="journal-form">
+    <input id="entry-date" value="2025-05-08" />
+    <input id="entry-title" value="Test Entry" />
+    <textarea id="entry-content">This is a test</textarea>
+    <input type="radio" name="mood" value="4" checked />
+  </form>
+  <div id="entries-container"></div>
+  <div id="no-entries" class="hidden"></div>
+  <select id="filter-select"></select>
+  <input id="search-input" />
+  <button id="clear-btn"></button>
+  <button id="print-btn"></button>
+  <button id="export-btn"></button>
+  <div id="entry-modal" class="hidden">
+    <h3 id="modal-title"></h3>
+    <div id="modal-content"></div>
+    <button id="close-modal"></button>
+    <button id="delete-entry"></button>
+    <button id="edit-entry"></button>
+    <button id="share-entry"></button>
+  </div>
+  <button class="mood-filter-btn" data-mood="all"></button>
+  <button id="dashboard-btn"></button>
+  <button id="entries-btn"></button>
+  <button id="calendar-btn"></button>
+  <div id="entries-view"></div>
+  <div id="dashboard-view" class="hidden"></div>
+  <div id="calendar-view" class="hidden"></div>
+  <select id="period-select"></select>
+  <canvas id="mood-chart"></canvas>
+  <div id="calendar"></div>
+  <button id="theme-toggle"><i class="fas fa-moon"></i> Dark Mode</button>
+`;
 
-// ==================== Storage Tests ====================
-describe('Storage', () => {
-  let storage;
+// Mock Chart.js and FullCalendar
+// jest.mock('chart.js', () => ({
+//   Chart: jest.fn(),
+// }));
+// jest.mock('fullcalendar', () => ({
+//   Calendar: jest.fn(() => ({
+//     destroy: jest.fn(),
+//     render: jest.fn(),
+//   })),
+// }));
 
-  beforeEach(() => {
-    localStorage.clear();
-    storage = new Storage();
+describe('Mindful Journal', () => {
+  describe('Storage', () => {
+    let storage;
+
+    beforeEach(() => {
+      localStorage.clear();
+      storage = new Storage();
+    });
+
+    test('should initialize with empty entries if localStorage is empty', () => {
+      expect(storage.getAllEntries()).toEqual([]);
+    });
+
+    test('should load entries from localStorage', () => {
+      const entries = [
+        { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08', createdAt: '2025-05-08T00:00:00Z' },
+      ];
+      localStorage.setItem('journalEntries', JSON.stringify(entries));
+      storage = new Storage();
+      expect(storage.getAllEntries()).toEqual(entries);
+    });
+
+    test('should add a new entry', () => {
+      const entry = {
+        id: '1',
+        title: 'Test Entry',
+        content: 'This is a test',
+        mood: '4',
+        date: '2025-05-08',
+        createdAt: '2025-05-08T00:00:00Z',
+      };
+      storage.addEntry(entry);
+      expect(storage.getAllEntries()).toEqual([entry]);
+      expect(localStorage.setItem).toHaveBeenCalledWith(
+        'journalEntries',
+        JSON.stringify([entry])
+      );
+    });
+
+    test('should update an existing entry', () => {
+      const entry = {
+        id: '1',
+        title: 'Test Entry',
+        content: 'This is a test',
+        mood: '4',
+        date: '2025-05-08',
+        createdAt: '2025-05-08T00:00:00Z',
+      };
+      storage.addEntry(entry);
+      const updatedEntry = { ...entry, title: 'Updated Entry', mood: '5' };
+      storage.updateEntry('1', updatedEntry);
+      expect(storage.getAllEntries()).toEqual([updatedEntry]);
+      expect(localStorage.setItem).toHaveBeenCalledWith(
+        'journalEntries',
+        JSON.stringify([updatedEntry])
+      );
+    });
+
+    test('should delete an entry', () => {
+      const entry = {
+        id: '1',
+        title: 'Test Entry',
+        content: 'This is a test',
+        mood: '4',
+        date: '2025-05-08',
+        createdAt: '2025-05-08T00:00:00Z',
+      };
+      storage.addEntry(entry);
+      storage.deleteEntry('1');
+      expect(storage.getAllEntries()).toEqual([]);
+      expect(localStorage.setItem).toHaveBeenCalledWith('journalEntries', JSON.stringify([]));
+    });
+
+    test('should get entry by ID', () => {
+      const entry = {
+        id: '1',
+        title: 'Test Entry',
+        content: 'This is a test',
+        mood: '4',
+        date: '2025-05-08',
+        createdAt: '2025-05-08T00:00:00Z',
+      };
+      storage.addEntry(entry);
+      expect(storage.getEntryById('1')).toEqual(entry);
+      expect(storage.getEntryById('2')).toBeUndefined();
+    });
+
+    test('should export entries', () => {
+      const entry = {
+        id: '1',
+        title: 'Test Entry',
+        content: 'This is a test',
+        mood: '4',
+        date: '2025-05-08',
+        createdAt: '2025-05-08T00:00:00Z',
+      };
+      storage.addEntry(entry);
+      const exported = storage.exportEntries();
+      expect(exported).toEqual({
+        journalName: 'Mindful Journal',
+        version: '1.0',
+        exportedAt: expect.any(String),
+        entries: [entry],
+      });
+    });
+
+    // test('should get mood trends for week', () => {
+    //   const entries = [
+    //     { id: '1', title: 'Test 1', content: 'Content', mood: '4', date: '2025-05-08', createdAt: '2025-05-08T00:00:00Z' },
+    //     { id: '2', title: 'Test 2', content: 'Content', mood: '5', date: '2025-05-07', createdAt: '2025-05-07T00:00:00Z' },
+    //   ];
+    //   entries.forEach(entry => storage.addEntry(entry));
+    //   const trends = storage.getMoodTrends('week');
+    //   expect(trends.labels).toEqual(['Week 1', 'Week 2', 'Week 3', 'Week 4']);
+    //   expect(trends.data.length).toBe(4);
+    //   expect(trends.data[3]).toBeCloseTo(4.5); // Average of 4 and 5
+    // });
+
+    // test('should get calendar events', () => {
+    //   const entry = {
+    //     id: '1',
+    //     title: 'Test Entry',
+    //     content: 'This is a test',
+    //     mood: '4',
+    //     date: '2025-05-08',
+    //     createdAt: '2025-05-08T00:00:00Z',
+    //   };
+    //   storage.addEntry(entry);
+    //   const events = storage.getCalendarEvents();
+    //   expect(events).toEqual([
+    //     {
+    //       id: '1',
+    //       title: 'Test Entry',
+    //       start: '2025-05-08',
+    //       backgroundColor: '#22c55e',
+    //       borderColor: '#22c55e',
+    //     },
+    //   ]);
+    // });
   });
 
-  test('initializes with empty array when no data in localStorage', () => {
-    expect(storage.getAllEntries()).toEqual([]);
-  });
+  describe('JournalApp', () => {
+    let journalApp;
+    let mockStorage;
+    let mockUI;
 
-  test('initializes with existing data from localStorage', () => {
-    const testData = [{ id: '1', title: 'Test Entry' }];
-    localStorage.setItem('journalEntries', JSON.stringify(testData));
-    const newStorage = new Storage();
-    expect(newStorage.getAllEntries()).toEqual(testData);
-  });
+    beforeEach(() => {
+      mockStorage = {
+        getAllEntries: jest.fn(),
+        getEntryById: jest.fn(),
+        addEntry: jest.fn(),
+        updateEntry: jest.fn(),
+        deleteEntry: jest.fn(),
+        save: jest.fn(),
+        exportEntries: jest.fn(),
+        getMoodTrends: jest.fn(),
+        getCalendarEvents: jest.fn(),
+      };
+      mockUI = {
+        initEventListeners: jest.fn(),
+        renderEntries: jest.fn(),
+        resetForm: jest.fn(),
+        getFormData: jest.fn(),
+        scrollToTop: jest.fn(),
+        openEntryModal: jest.fn(),
+        closeModal: jest.fn(),
+        fillFormWithEntry: jest.fn(),
+        scrollToForm: jest.fn(),
+        exportData: jest.fn(),
+        toggleView: jest.fn(),
+        renderMoodChart: jest.fn(),
+        renderCalendar: jest.fn(),
+        shareEntry: jest.fn(),
+      };
+      Storage.mockImplementation(() => mockStorage);
+      UI.mockImplementation(() => mockUI);
+      journalApp = new JournalApp();
+    });
 
-  test('adds and retrieves entries correctly', () => {
-    const entry = { id: '1', title: 'Test Entry' };
-    storage.addEntry(entry);
-    expect(storage.getAllEntries()).toHaveLength(1);
-    expect(storage.getEntryById('1')).toEqual(entry);
-    expect(storage.getEntryById('2')).toBeUndefined();
-  });
+    test('should initialize correctly', () => {
+      expect(mockUI.initEventListeners).toHaveBeenCalled();
+      expect(journalApp.renderEntries).toHaveBeenCalled();
+    });
 
-  test('updates entries correctly', () => {
-    const entry = { id: '1', title: 'Test Entry' };
-    storage.addEntry(entry);
-    const updatedEntry = { ...entry, title: 'Updated' };
-    storage.updateEntry('1', updatedEntry);
-    expect(storage.getEntryById('1')).toEqual(updatedEntry);
-  });
+    test('should add a new entry', () => {
+      mockUI.getFormData.mockReturnValue({
+        date: '2025-05-08',
+        title: 'Test Entry',
+        content: 'This is a test',
+        mood: '4',
+      });
+      journalApp.addEntry();
+      expect(mockStorage.addEntry).toHaveBeenCalledWith(expect.objectContaining({
+        id: expect.any(String),
+        date: '2025-05-08',
+        title: 'Test Entry',
+        content: 'This is a test',
+        mood: '4',
+        createdAt: expect.any(String),
+      }));
+      expect(mockUI.resetForm).toHaveBeenCalled();
+      expect(journalApp.renderEntries).toHaveBeenCalled();
+      expect(mockUI.scrollToTop).toHaveBeenCalled();
+    });
 
-  test('deletes entries correctly', () => {
-    const entry = { id: '1', title: 'Test Entry' };
-    storage.addEntry(entry);
-    storage.deleteEntry('1');
-    expect(storage.getAllEntries()).toHaveLength(0);
-  });
+    test('should not add entry if form data is incomplete', () => {
+      mockUI.getFormData.mockReturnValue({
+        date: '',
+        title: '',
+        content: '',
+        mood: '4',
+      });
+      journalApp.addEntry();
+      expect(mockStorage.addEntry).not.toHaveBeenCalled();
+    });
 
-  test('exports entries with metadata', () => {
-    const entry = { id: '1', title: 'Test Entry' };
-    storage.addEntry(entry);
-    const exported = storage.exportEntries();
-    expect(exported.entries).toContainEqual(entry);
-    expect(exported).toHaveProperty('journalName');
-    expect(exported).toHaveProperty('version');
-    expect(exported).toHaveProperty('exportedAt');
-  });
-});
+    test('should filter entries by mood', () => {
+      const entries = [
+        { id: '1', title: 'Test 1', content: 'Content', mood: '4', date: '2025-05-08' },
+        { id: '2', title: 'Test 2', content: 'Content', mood: '5', date: '2025-05-07' },
+      ];
+      mockStorage.getAllEntries.mockReturnValue(entries);
+      journalApp.filterByMood('4');
+      expect(journalApp.selectedMood).toBe('4');
+      expect(mockUI.renderEntries).toHaveBeenCalledWith(
+        [entries[0]],
+        expect.any(Object)
+      );
+    });
 
-// ==================== UI Tests ====================
-describe('UI', () => {
-  let ui;
-  let mockCallbacks;
+    test('should search entries by title or content', () => {
+      const entries = [
+        { id: '1', title: 'Test Entry', content: 'Content', mood: '4', date: '2025-05-08' },
+        { id: '2', title: 'Other', content: 'Different', mood: '5', date: '2025-05-07' },
+      ];
+      mockStorage.getAllEntries.mockReturnValue(entries);
+      journalApp.searchEntries('test');
+      expect(journalApp.searchTerm).toBe('test');
+      expect(mockUI.renderEntries).toHaveBeenCalledWith(
+        [entries[0]],
+        expect.any(Object)
+      );
+    });
 
-  beforeEach(() => {
-    mockCallbacks = {
-      onFormSubmit: jest.fn(),
-      onClearForm: jest.fn(),
-      onFilterChange: jest.fn(),
-      onSearch: jest.fn(),
-      onMoodFilter: jest.fn(),
-      onPrint: jest.fn(),
-      onExport: jest.fn(),
-      onCloseModal: jest.fn(),
-      onDeleteEntry: jest.fn(),
-      onEditEntry: jest.fn(),
-      onOpenEntry: jest.fn()
-    };
+    test('should filter entries by date', () => {
+      const entries = [
+        { id: '1', title: 'Test 1', content: 'Content', mood: '4', date: '2025-05-08' },
+        { id: '2', title: 'Test 2', content: 'Content', mood: '5', date: '2025-05-07' },
+      ];
+      mockStorage.getAllEntries.mockReturnValue(entries);
+      journalApp.filterByDate('2025-05-08');
+      expect(journalApp.currentFilter).toBe('date:2025-05-08');
+      expect(mockUI.renderEntries).toHaveBeenCalledWith(
+        [entries[0]],
+        expect.any(Object)
+      );
+    });
 
-    ui = new UI();
-    ui.initEventListeners(mockCallbacks);
-  });
+    test('should open an entry', () => {
+      const entry = { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08' };
+      mockStorage.getEntryById.mockReturnValue(entry);
+      journalApp.openEntry('1');
+      expect(journalApp.currentEntryId).toBe('1');
+      expect(mockUI.openEntryModal).toHaveBeenCalledWith(entry, '');
+    });
 
-  test('gets form data correctly', () => {
-    const formData = ui.getFormData();
-    expect(formData).toEqual({
-      date: '2023-01-01',
-      title: 'Test Title',
-      content: 'Test Content',
-      mood: '3'
+    test('should delete an entry', () => {
+      global.confirm = jest.fn(() => true);
+      journalApp.currentEntryId = '1';
+      journalApp.deleteEntry();
+      expect(mockStorage.deleteEntry).toHaveBeenCalledWith('1');
+      expect(mockUI.closeModal).toHaveBeenCalled();
+      expect(journalApp.renderEntries).toHaveBeenCalled();
+    });
+
+    test('should edit an entry', () => {
+      const entry = { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08' };
+      mockStorage.getEntryById.mockReturnValue(entry);
+      journalApp.currentEntryId = '1';
+      journalApp.editEntry();
+      expect(mockUI.fillFormWithEntry).toHaveBeenCalledWith(entry);
+      expect(mockStorage.deleteEntry).toHaveBeenCalledWith('1');
+      expect(mockUI.closeModal).toHaveBeenCalled();
+      expect(mockUI.scrollToForm).toHaveBeenCalled();
+    });
+
+    test('should export entries', () => {
+      const exportedData = { journalName: 'Mindful Journal', entries: [] };
+      mockStorage.exportEntries.mockReturnValue(exportedData);
+      journalApp.exportEntries();
+      expect(mockStorage.exportEntries).toHaveBeenCalled();
+      expect(mockUI.exportData).toHaveBeenCalledWith(exportedData);
     });
   });
 
-  test('resets form correctly', () => {
-    ui.resetForm();
-    expect(document.getElementById('entry-title').value).toBe('');
+  describe('UI', () => {
+    let ui;
+
+    beforeEach(() => {
+      ui = new UI();
+      jest.spyOn(window, 'alert').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      window.alert.mockRestore();
+    });
+
+    test('should get form data', () => {
+      expect(ui.getFormData()).toEqual({
+        date: '2025-05-08',
+        title: 'Test Entry',
+        content: 'This is a test',
+        mood: '4',
+      });
+    });
+
+    test('should reset form', () => {
+      const formResetSpy = jest.spyOn(ui.form, 'reset');
+      ui.resetForm();
+      expect(formResetSpy).toHaveBeenCalled();
+    });
+
+    test('should render entries', () => {
+      const entries = [
+        { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08', createdAt: '2025-05-08T00:00:00Z' },
+      ];
+      ui.renderEntries(entries, { filter: 'all', searchTerm: '', selectedMood: 'all' });
+      expect(ui.entriesContainer.children.length).toBe(1);
+      expect(ui.entriesContainer.querySelector('.entry-content')).toBeTruthy();
+    });
+
+    test('should show no entries message when empty', () => {
+      ui.renderEntries([], { filter: 'all', searchTerm: '', selectedMood: 'all' });
+      expect(ui.noEntries.classList.contains('hidden')).toBe(false);
+    });
+
+    test('should open entry modal', () => {
+      const entry = { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08' };
+      ui.openEntryModal(entry, '');
+      expect(ui.modal.classList.contains('hidden')).toBe(false);
+      expect(ui.modalTitle.textContent).toBe('Test');
+      expect(ui.modalContent.querySelector('p').textContent).toBe('Content');
+    });
+
+    test('should close modal', () => {
+      ui.modal.classList.remove('hidden');
+      ui.closeModal();
+      expect(ui.modal.classList.contains('hidden')).toBe(true);
+    });
+
+    test('should fill form with entry data', () => {
+      const entry = { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08' };
+      ui.fillFormWithEntry(entry);
+      expect(document.getElementById('entry-date').value).toBe('2025-05-08');
+      expect(document.getElementById('entry-title').value).toBe('Test');
+      expect(document.getElementById('entry-content').value).toBe('Content');
+      expect(document.querySelector('input[name="mood"][value="4"]').checked).toBe(true);
+    });
+
+  
   });
 
-  test('renders entries correctly', () => {
-    const entries = [
-      { id: '1', title: 'Test 1', content: 'Content 1', date: '2023-01-01', mood: '3' },
-      { id: '2', title: 'Test 2', content: 'Content 2', date: '2023-01-02', mood: '4' }
-    ];
-    
-    ui.renderEntries(entries, { filter: 'all', searchTerm: '', selectedMood: 'all' });
-    const container = document.getElementById('entries-container');
-    expect(container.children).toHaveLength(2);
-  });
+  describe('Theme Toggle', () => {
+    beforeEach(() => {
+      // Reset theme-related mocks
+      localStorage.clear();
+      document.documentElement.setAttribute('data-theme', 'light');
+      const themeToggle = document.getElementById('theme-toggle');
+      themeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+    });
 
-  test('opens and closes modal correctly', () => {
-    const entry = { id: '1', title: 'Test', content: 'Content', date: '2023-01-01', mood: '3' };
-    ui.openEntryModal(entry, '');
-    expect(document.getElementById('entry-modal').classList.contains('hidden')).toBe(false);
-    ui.closeModal();
-    expect(document.getElementById('entry-modal').classList.contains('hidden')).toBe(true);
+    test('should initialize with saved theme or system preference', () => {
+      localStorage.setItem('theme', 'dark');
+      document.dispatchEvent(new Event('DOMContentLoaded'));
+      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+      expect(document.getElementById('theme-toggle').textContent).toContain('Light Mode');
+      expect(document.querySelector('#theme-toggle i').classList.contains('fa-sun')).toBe(true);
+    });
+
+    test('should initialize with light theme if no saved preference and system prefers light', () => {
+      window.matchMedia = jest.fn().mockImplementation(query => ({
+        matches: query === '(prefers-color-scheme: light)',
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      }));
+      document.dispatchEvent(new Event('DOMContentLoaded'));
+      expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+      expect(document.getElementById('theme-toggle').textContent).toContain('Dark Mode');
+      expect(document.querySelector('#theme-toggle i').classList.contains('fa-moon')).toBe(true);
+    });
+
+    test('should toggle theme on button click', () => {
+      document.dispatchEvent(new Event('DOMContentLoaded'));
+      const themeToggle = document.getElementById('theme-toggle');
+      themeToggle.click();
+      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+      expect(localStorage.setItem).toHaveBeenCalledWith('theme', 'dark');
+      expect(themeToggle.textContent).toContain('Light Mode');
+      expect(document.querySelector('#theme-toggle i').classList.contains('fa-sun')).toBe(true);
+
+      themeToggle.click();
+      expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+      expect(localStorage.setItem).toHaveBeenCalledWith('theme', 'light');
+      expect(themeToggle.textContent).toContain('Dark Mode');
+      expect(document.querySelector('#theme-toggle i').classList.contains('fa-moon')).toBe(true);
+    });
+
+  
   });
 });
-
-// ==================== JournalApp Tests ====================
-describe('JournalApp', () => {
-  let journalApp;
-
-  beforeEach(() => {
-    localStorage.clear();
-    journalApp = new JournalApp();
-  });
-
-  test('initializes with default state', () => {
-    expect(journalApp.currentEntryId).toBeNull();
-    expect(journalApp.searchTerm).toBe('');
-    expect(journalApp.selectedMood).toBe('all');
-    expect(journalApp.currentFilter).toBe('all');
-  });
-
-  test('adds entry correctly', () => {
-    jest.spyOn(UI.prototype, 'getFormData').mockImplementation(() => ({
-      date: '2023-01-01',
-      title: 'Test',
-      content: 'Content',
-      mood: '3'
-    }));
-    
-    const mockAddEntry = jest.spyOn(Storage.prototype, 'addEntry');
-    journalApp.addEntry();
-    expect(mockAddEntry).toHaveBeenCalled();
-  });
-
-  test('filters entries by date range', () => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    jest.spyOn(Storage.prototype, 'getAllEntries').mockImplementation(() => [
-      { id: '1', date: today.toISOString().split('T')[0] },
-      { id: '2', date: yesterday.toISOString().split('T')[0] },
-      { id: '3', date: '2000-01-01' }
-    ]);
-    
-    const todayEntries = journalApp.filterEntries('today');
-    expect(todayEntries).toHaveLength(1);
-  });
-});
-
-// // ==================== Theme Manager Tests ====================
-// describe('ThemeManager', () => {
-//   let themeManager;
-
-//   beforeEach(() => {
-//     localStorage.clear();
-//   });
-
-//   test('initializes with light theme by default', () => {
-//     Object.defineProperty(window, 'matchMedia', {
-//       writable: true,
-//       value: jest.fn().mockImplementation(() => ({ matches: false })),
-//     });
-    
-//     themeManager = new JournalApp().themeManager;
-//     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
-//   });
-
-//   test('toggles theme on button click', () => {
-//     themeManager = new JournalApp().themeManager;
-//     const button = document.getElementById('theme-toggle');
-    
-//     // Initial state
-//     document.documentElement.setAttribute('data-theme', 'light');
-    
-//     // First click - switch to dark
-//     button.click();
-//     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-    
-//     // Second click - switch back to light
-//     button.click();
-//     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
-//   });
-
-//   test('saves theme preference to localStorage', () => {
-//     themeManager = new JournalApp().themeManager;
-//     const button = document.getElementById('theme-toggle');
-    
-//     button.click(); // Switch to dark
-//     expect(localStorage.getItem('theme')).toBe('dark');
-    
-//     button.click(); // Switch to light
-//     expect(localStorage.getItem('theme')).toBe('light');
-//   });
-// });
