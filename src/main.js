@@ -1,3 +1,4 @@
+
 /* Updated main.js */
 import Storage from './storage.js';
 import UI from './Ui.js';
@@ -11,7 +12,7 @@ class JournalApp {
         this.searchTerm = '';
         this.selectedMood = 'all';
         this.currentFilter = 'all';
-        this.currentView = 'entries'; // Track current view (entries or dashboard)
+        this.currentView = 'entries';
         
         this.init();
     }
@@ -31,7 +32,9 @@ class JournalApp {
             onOpenEntry: (id) => this.openEntry(id),
             onShowDashboard: () => this.showDashboard(),
             onShowEntries: () => this.showEntries(),
-            onPeriodChange: (period) => this.updateMoodChart(period)
+            onShowCalendar: () => this.showCalendar(),
+            onPeriodChange: (period) => this.updateMoodChart(period),
+            onCalendarDateClick: (date) => this.filterByDate(date)
         });
         
         this.renderEntries();
@@ -78,6 +81,13 @@ class JournalApp {
         this.renderEntries();
     }
     
+    showCalendar() {
+        this.currentView = 'calendar';
+        this.ui.toggleView('calendar');
+        const events = this.storage.getCalendarEvents();
+        this.ui.renderCalendar(events);
+    }
+    
     updateMoodChart(period) {
         const moodData = this.storage.getMoodTrends(period);
         this.ui.renderMoodChart(moodData, period);
@@ -109,6 +119,14 @@ class JournalApp {
                 const entryDate = new Date(entry.date);
                 return entryDate >= monthAgo;
             });
+        } else if (filter.startsWith('date:')) {
+            const selectedDate = new Date(filter.split('date:')[1]);
+            const nextDay = new Date(selectedDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            filteredEntries = filteredEntries.filter(entry => {
+                const entryDate = new Date(entry.date);
+                return entryDate >= selectedDate && entryDate < nextDay;
+            });
         }
         
         if (this.selectedMood !== 'all') {
@@ -123,6 +141,11 @@ class JournalApp {
         }
         
         return filteredEntries;
+    }
+    
+    filterByDate(date) {
+        this.currentFilter = `date:${date}`;
+        this.renderEntries();
     }
     
     searchEntries(term) {
@@ -153,7 +176,11 @@ class JournalApp {
         
         if (confirm('Are you sure you want to delete this entry?')) {
             this.storage.deleteEntry(this.currentEntryId);
-            this.renderEntries();
+            if (this.currentView === 'calendar') {
+                this.showCalendar();
+            } else {
+                this.renderEntries();
+            }
             this.closeModal();
         }
     }
