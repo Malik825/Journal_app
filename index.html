@@ -1,27 +1,22 @@
 
+/* Updated index.html */
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mindful Journal</title>
-    <script defer src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Stint+Ultra+Expanded&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Satisfy&family=Stint+Ultra+Expanded&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./src/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <link rel="stylesheet" href="./src/css/style.css">
 </head>
 <body class="bg-gray-50 min-h-screen font-sans">
   <div class="container mx-auto px-4 py-8 max-w-6xl">
     <header class="flex justify-between items-center mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-teal-700 ">Mindful Journal</h1>
+            <h1 class="text-3xl font-bold text-indigo-700">Mindful Journal</h1>
             <p class="text-gray-600">Capture your thoughts, reflect, and grow</p>
         </div>
         <div class="flex items-center space-x-4">
@@ -31,10 +26,6 @@
             <button id="export-btn" class="no-print bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 border border-gray-300 rounded-lg shadow-sm flex items-center">
                 <i class="fas fa-file-export mr-2"></i> Export
             </button>
-            <!-- Add this inside the header div, after the export button -->
-<button id="theme-toggle" class="no-print bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 border border-gray-300 rounded-lg shadow-sm flex items-center">
-    <i class="fas fa-moon mr-2"></i> Dark Mode
-</button>
         </div>
     </header>
 
@@ -46,54 +37,53 @@
                 <form id="journal-form" class="space-y-4">
                     <div>
                         <label for="entry-date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                        <input type="date" id="entry-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        <input type="date" id="entry-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                     </div>
                     
                     <div>
                         <label for="entry-title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                        <input type="text" id="entry-title" placeholder="How was your day?" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        <input type="text" id="entry-title" placeholder="How was your day?" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mood</label>
                         <div class="grid grid-cols-5 gap-2">
                             <input type="radio" name="mood" id="mood-1" value="1" class="hidden mood-checkbox">
-                            <label for="mood-1" class="mood-label text-center py-2 border rounded-full cursor-pointer transition-colors hover:bg-gray-100">
-                                <i class="fas fa-angry text-xl text-red-500"></i>
+                            <label for="mood-1" class="mood-label text-center py-2 border rounded-full cursor-pointer transition-colors">
+                                <i class="fas fa-angry text-xl"></i>
                             </label>
                             
                             <input type="radio" name="mood" id="mood-2" value="2" class="hidden mood-checkbox">
-                            <label for="mood-2" class="mood-label text-center py-2 border rounded-full cursor-pointer transition-colors hover:bg-gray-100">
-                                <i class="fas fa-frown text-xl text-orange-500"></i>
+                            <label for="mood-2" class="mood-label text-center py-2 border rounded-full cursor-pointer transition-colors">
+                                <i class="fas fa-frown text-xl"></i>
                             </label>
                             
                             <input type="radio" name="mood" id="mood-3" value="3" class="hidden mood-checkbox">
-                            <label for="mood-3" class="mood-label text-center py-2 border rounded-full cursor-pointer transition-colors hover:bg-gray-100">
-                                <i class="fas fa-meh text-xl text-yellow-500"></i>
+                            <label for="mood-3" class="mood-label text-center py-2 border rounded-full cursor-pointer transition-colors">
+                                <i class="fas fa-meh text-xl"></i>
                             </label>
                             
                             <input type="radio" name="mood" id="mood-4" value="4" class="hidden mood-checkbox">
-                            <label for="mood-4" class="mood-label text-center py-2 border rounded-full cursor-pointer transition-colors hover:bg-gray-100">
-                                <i class="fas fa-smile text-xl text-green-500"></i>
+                            <label for="mood-4" class="mood-label text-center py-2 border rounded-full cursor-pointer transition-colors">
+                                <i class="fas fa-smile text-xl"></i>
                             </label>
                             
                             <input type="radio" name="mood" id="mood-5" value="5" class="hidden mood-checkbox">
-                            <label for="mood-5" class="mood-label text-center py-2 border  rounded-full cursor-pointer transition-colors hover:bg-gray-100 ">
-                                <i class="fas fa-laugh text-xl text-teal-500"></i>
+                            <label for="mood-5" class="mood-label text-center py-2 border rounded-full cursor-pointer transition-colors">
+                                <i class="fas fa-laugh text-xl"></i>
                             </label>
                         </div>
                     </div>
                     
                     <div>
                         <label for="entry-content" class="block text-sm font-medium text-gray-700 mb-1">Your Thoughts</label>
-                        <textarea id="entry-content" rows="6" placeholder="Write your thoughts here..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required></textarea>
+                        <textarea id="entry-content" rows="6" placeholder="Write your thoughts here..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required></textarea>
                     </div>
                     
                     <div class="flex justify-between items-center pt-2">
                         <button type="button" id="clear-btn" class="text-gray-600 hover:text-gray-800 flex items-center">
-                            <i class="fas fa-trash-alt mr-1 text-red-500"></i> Clear
+                            <i class="fas fa-trash-alt mr-1"></i> Clear
                         </button>
-                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
                         <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
                             <i class="fas fa-plus mr-2"></i> Add Entry
                         </button>
@@ -112,16 +102,19 @@
                         <button id="dashboard-btn" class="bg-white text-gray-800 px-4 py-2 border border-gray-300 rounded-md shadow-sm flex items-center">
                             <i class="fas fa-chart-line mr-2"></i> Dashboard
                         </button>
+                        <button id="calendar-btn" class="bg-white text-gray-800 px-4 py-2 border border-gray-300 rounded-md shadow-sm flex items-center">
+                            <i class="fas fa-calendar-alt mr-2"></i> Calendar
+                        </button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                         <div class="relative flex-grow sm:w-64">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
-                            <input type="text" id="search-input" placeholder="Search entries..." class="pl-10 w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <input type="text" id="search-input" placeholder="Search entries..." class="pl-10 w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                         <div class="relative">
-                            <select id="filter-select" class="appearance-none bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <select id="filter-select" class="appearance-none bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                 <option value="all">All Entries</option>
                                 <option value="today">Today</option>
                                 <option value="week">This Week</option>
@@ -140,7 +133,7 @@
                             <i class="fas fa-star mr-1"></i> All Moods
                         </button>
                         <button class="mood-filter-btn px-3 py-1 border rounded-full text-sm flex items-center" data-mood="5">
-                            <i class="fas fa-laugh text-teal-500 mr-1"></i> Very Happy
+                            <i class="fas fa-laugh text-blue-500 mr-1"></i> Very Happy
                         </button>
                         <button class="mood-filter-btn px-3 py-1 border rounded-full text-sm flex items-center" data-mood="4">
                             <i class="fas fa-smile text-green-500 mr-1"></i> Happy
@@ -178,6 +171,11 @@
                     </div>
                     <canvas id="mood-chart"></canvas>
                 </div>
+                
+                <div id="calendar-view" class="hidden p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Calendar View</h2>
+                    <div id="calendar"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -197,17 +195,14 @@
             <button id="delete-entry" class="text-red-600 hover:text-red-800 flex items-center">
                 <i class="fas fa-trash-alt mr-1"></i> Delete
             </button>
-            <button id="edit-entry" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
+            <button id="edit-entry" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
                 <i class="fas fa-edit mr-2"></i> Edit
             </button>
         </div>
     </div>
 </div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="./src/main.js"></script>
-    <script type="module" src="./src/analytics.js"></script>
+ 
+    
     <script type="module" src="./src/analyticsDashboard.js"></script>
 </body>
 </html>
