@@ -183,7 +183,26 @@
         </div>
     </div>
 </div>
- 
+<!-- Add this near the entries list or in a new tab -->
+<div id="dashboard" class="bg-white rounded-xl shadow-md p-6 mt-6">
+    <h2 class="text-xl font-semibold mb-4">Your Journal Insights</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <h3 class="font-medium mb-2">Mood Distribution</h3>
+            <canvas id="mood-chart"></canvas>
+        </div>
+        <div>
+            <h3 class="font-medium mb-2">Entries Over Time</h3>
+            <canvas id="timeline-chart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Add a toggle button in the header -->
+<button id="toggle-dashboard" class="no-print bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 border border-gray-300 rounded-lg shadow-sm flex items-center">
+    <i class="fas fa-chart-pie mr-2"></i> Insights
+</button>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="./src/main.js"></script>
 </body>
 </html>
