@@ -121,6 +121,13 @@ textarea::placeholder {
   transform: scale(1.1);
   transition: all 0.2s ease;
 }
+.mood-label:hover {
+  background-color: rgb(15 118 110) !important;
+  color: white;
+  border-color: rgb(15 118 110);
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
 
 
 /* Print styles */
@@ -136,7 +143,7 @@ textarea::placeholder {
 
 /* Mood selection styling */
 .mood-checkbox:checked + .mood-label {
-  border-color: #4f46e5;
+  border-color: teal;
 }
 
 .mood-label {
@@ -146,17 +153,19 @@ textarea::placeholder {
 /* Mood filter button styling */
 .mood-filter-btn {
   border-color: #e5e7eb;
-  background-color: white;
   transition: all 0.2s;
 }
 
 .mood-filter-btn:hover {
-  background-color: #f9fafb;
+  background-color: teal;
+  color: #fff;
+
+
 }
 
 .mood-filter-btn.active {
-  border-color: #4f46e5;
-  background-color: #eef2ff;
+  border-color: teal;
+  color: #fff;
 }
 
 /* Entry styling */

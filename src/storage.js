@@ -1,7 +1,11 @@
-/* Updated storage.js */
 class Storage {
     constructor() {
-        this.entries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+        try {
+            this.entries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+        } catch (e) {
+            console.error('Failed to load entries from localStorage:', e);
+            this.entries = [];
+        }
     }
 
     getAllEntries() {
@@ -31,7 +35,11 @@ class Storage {
     }
 
     save() {
-        localStorage.setItem('journalEntries', JSON.stringify(this.entries));
+        try {
+            localStorage.setItem('journalEntries', JSON.stringify(this.entries));
+        } catch (e) {
+            console.error('Failed to save entries to localStorage:', e);
+        }
     }
 
     exportEntries() {
@@ -61,8 +69,9 @@ class Storage {
                     const entryDate = new Date(entry.date);
                     return entryDate >= hourStart && entryDate < hourEnd;
                 });
-                const avgMood = hourEntries.length > 0
-                    ? hourEntries.reduce((sum, entry) => sum + parseInt(entry.mood), 0) / hourEntries.length
+                const validEntries = hourEntries.filter(entry => entry.mood && !isNaN(parseInt(entry.mood)));
+                const avgMood = validEntries.length > 0
+                    ? validEntries.reduce((sum, entry) => sum + parseInt(entry.mood), 0) / validEntries.length
                     : null;
                 moodData.labels.push(hourStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
                 moodData.data.push(avgMood);
@@ -76,8 +85,9 @@ class Storage {
                     const entryDate = new Date(entry.date);
                     return entryDate >= dayStart && entryDate < dayEnd;
                 });
-                const avgMood = dayEntries.length > 0
-                    ? dayEntries.reduce((sum, entry) => sum + parseInt(entry.mood), 0) / dayEntries.length
+                const validEntries = dayEntries.filter(entry => entry.mood && !isNaN(parseInt(entry.mood)));
+                const avgMood = validEntries.length > 0
+                    ? validEntries.reduce((sum, entry) => sum + parseInt(entry.mood), 0) / validEntries.length
                     : null;
                 moodData.labels.push(dayStart.toLocaleDateString());
                 moodData.data.push(avgMood);
@@ -91,8 +101,9 @@ class Storage {
                     const entryDate = new Date(entry.date);
                     return entryDate >= weekStart && entryDate < weekEnd;
                 });
-                const avgMood = weekEntries.length > 0
-                    ? weekEntries.reduce((sum, entry) => sum + parseInt(entry.mood), 0) / weekEntries.length
+                const validEntries = weekEntries.filter(entry => entry.mood && !isNaN(parseInt(entry.mood)));
+                const avgMood = validEntries.length > 0
+                    ? validEntries.reduce((sum, entry) => sum + parseInt(entry.mood), 0) / validEntries.length
                     : null;
                 moodData.labels.push(`Week ${i + 1}`);
                 moodData.data.push(avgMood);

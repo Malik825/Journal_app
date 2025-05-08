@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-
-/* Updated main.js */
-=======
-/* src/main.js */
->>>>>>> test/tests
 import Storage from './storage.js';
 import UI from './Ui.js';
 import ThemeManager from './theme.js';
@@ -210,51 +204,7 @@ class JournalApp {
     }
 }
 
-<<<<<<< HEAD
-  
-  export default ThemeManager;
-
-
-
-
-
-
-
-=======
->>>>>>> test/tests
 document.addEventListener('DOMContentLoaded', () => {
-    // Theme toggle functionality
-    const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        const icon = themeToggle.querySelector('i');
-        if (icon) {
-            const savedTheme = localStorage.getItem('theme') || 
-                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', savedTheme);
-
-            function updateThemeButton(isDark) {
-                if (isDark) {
-                    icon.classList.replace('fa-moon', 'fa-sun');
-                    themeToggle.textContent = ' Light Mode';
-                } else {
-                    icon.classList.replace('fa-sun', 'fa-moon');
-                    themeToggle.textContent = ' Dark Mode';
-                }
-                themeToggle.prepend(icon);
-            }
-
-            updateThemeButton(savedTheme === 'dark');
-
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                updateThemeButton(newTheme === 'dark');
-            });
-        }
-    }
-
     // Initialize the app
     new JournalApp();
 });

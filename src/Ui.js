@@ -1,5 +1,3 @@
-
-/* Updated Ui.js */
 class UI {
     constructor() {
         this.form = document.getElementById('journal-form');
@@ -26,9 +24,11 @@ class UI {
         this.periodSelect = document.getElementById('period-select');
         this.moodChartCanvas = document.getElementById('mood-chart');
         this.calendarContainer = document.getElementById('calendar');
+        this.moodLabels = document.querySelectorAll('.mood-label');
         this.moodChart = null;
         this.calendar = null;
         this.onOpenEntry = null;
+        this.onCalendarDateClick = null;
     }
 
     initEventListeners({
@@ -54,6 +54,7 @@ class UI {
             onFormSubmit();
         });
         this.onOpenEntry = onOpenEntry;
+        this.onCalendarDateClick = onCalendarDateClick;
 
         this.clearBtn.addEventListener('click', () => {
             onClearForm();
@@ -105,36 +106,42 @@ class UI {
             this.entriesView.classList.remove('hidden');
             this.dashboardView.classList.add('hidden');
             this.calendarView.classList.add('hidden');
-            this.entriesBtn.classList.add('bg-indigo-600', 'text-white');
+            this.entriesBtn.classList.add('bg-teal-600', 'text-white');
             this.entriesBtn.classList.remove('bg-white', 'text-gray-800');
             this.dashboardBtn.classList.add('bg-white', 'text-gray-800');
-            this.dashboardBtn.classList.remove('bg-indigo-600', 'text-white');
+            this.dashboardBtn.classList.remove('bg-teal-600', 'text-white');
             this.calendarBtn.classList.add('bg-white', 'text-gray-800');
-            this.calendarBtn.classList.remove('bg-indigo-600', 'text-white');
+            this.calendarBtn.classList.remove('bg-teal-600', 'text-white');
         } else if (view === 'dashboard') {
             this.entriesView.classList.add('hidden');
             this.dashboardView.classList.remove('hidden');
             this.calendarView.classList.add('hidden');
-            this.dashboardBtn.classList.add('bg-indigo-600', 'text-white');
+            this.dashboardBtn.classList.add('bg-teal-600', 'text-white');
             this.dashboardBtn.classList.remove('bg-white', 'text-gray-800');
             this.entriesBtn.classList.add('bg-white', 'text-gray-800');
-            this.entriesBtn.classList.remove('bg-indigo-600', 'text-white');
+            this.entriesBtn.classList.remove('bg-teal-600', 'text-white');
             this.calendarBtn.classList.add('bg-white', 'text-gray-800');
-            this.calendarBtn.classList.remove('bg-indigo-600', 'text-white');
+            this.calendarBtn.classList.remove('bg-teal-600', 'text-white');
         } else {
             this.entriesView.classList.add('hidden');
             this.dashboardView.classList.add('hidden');
             this.calendarView.classList.remove('hidden');
-            this.calendarBtn.classList.add('bg-indigo-600', 'text-white');
+            this.calendarBtn.classList.add('bg-teal-600', 'text-white');
             this.calendarBtn.classList.remove('bg-white', 'text-gray-800');
             this.entriesBtn.classList.add('bg-white', 'text-gray-800');
-            this.entriesBtn.classList.remove('bg-indigo-600', 'text-white');
+            this.entriesBtn.classList.remove('bg-teal-600', 'text-white');
             this.dashboardBtn.classList.add('bg-white', 'text-gray-800');
-            this.dashboardBtn.classList.remove('bg-indigo-600', 'text-white');
+            this.dashboardBtn.classList.remove('bg-teal-600', 'text-white');
         }
     }
 
     renderMoodChart(moodData, period) {
+        if (!window.Chart) {
+            console.error('Chart.js is not loaded.');
+            this.moodChartCanvas.parentElement.innerHTML = '<p class="text-red-500">Error: Unable to load mood chart. Please try again later.</p>';
+            return;
+        }
+
         if (this.moodChart) {
             this.moodChart.destroy();
         }
@@ -146,7 +153,7 @@ class UI {
                 datasets: [{
                     label: 'Average Mood',
                     data: moodData.data,
-                    borderColor: 'rgba(99, 102, 241, 1)',
+                    borderColor: 'teal',
                     backgroundColor: 'rgba(99, 102, 241, 0.2)',
                     fill: true,
                     tension: 0.4
@@ -185,6 +192,12 @@ class UI {
     }
 
     renderCalendar(events) {
+        if (!window.FullCalendar) {
+            console.error('FullCalendar is not loaded.');
+            this.calendarContainer.innerHTML = '<p class="text-red-500">Error: Unable to load calendar. Please try again later.</p>';
+            return;
+        }
+
         if (this.calendar) {
             this.calendar.destroy();
         }
@@ -198,8 +211,8 @@ class UI {
                 }
             },
             dateClick: info => {
-                if (onCalendarDateClick) {
-                    onCalendarDateClick(info.dateStr);
+                if (this.onCalendarDateClick) {
+                    this.onCalendarDateClick(info.dateStr);
                 }
             },
             height: 'auto',
@@ -224,6 +237,15 @@ class UI {
 
     resetForm() {
         this.form.reset();
+        // Ensure Neutral mood is checked and active
+        const neutralMood = document.getElementById('mood-3');
+        neutralMood.checked = true;
+        this.moodLabels.forEach(label => {
+            label.classList.remove('active');
+            if (label.getAttribute('for') === 'mood-3') {
+                label.classList.add('active');
+            }
+        });
     }
 
     renderEntries(entries, { filter, searchTerm, selectedMood }) {
@@ -270,7 +292,7 @@ class UI {
 
         entryElement.innerHTML = `
             <div class="flex justify-between items-start mb-2">
-                <h3 class="text-lg font-medium ">${displayTitle}</h3>
+                <h3 class="text-lg font-medium">${displayTitle}</h3>
                 <div class="flex items-center">
                     <i class="fas ${mood.icon} ${mood.color} text-xl mr-2"></i>
                     <span class="text-sm text-gray-500">${formattedDate}</span>
@@ -278,7 +300,7 @@ class UI {
             </div>
             <p class="text-gray-600 line-clamp-3">${displayContent}</p>
             <div class="mt-3 flex justify-end">
-                <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center read-more">
+                <button class="text-teal-600 hover:text-teal-800 text-sm font-medium flex items-center read-more">
                     Read more <i class="fas fa-chevron-right ml-1 text-xs"></i>
                 </button>
             </div>
@@ -299,7 +321,6 @@ class UI {
     
         return entryElement;
     }
-
 
     highlightText(text, searchTerm) {
         if (!searchTerm || !text) return text;
@@ -355,7 +376,18 @@ class UI {
         document.getElementById('entry-date').value = entry.date;
         document.getElementById('entry-title').value = entry.title;
         document.getElementById('entry-content').value = entry.content;
-        document.querySelector(`input[name="mood"][value="${entry.mood}"]`).checked = true;
+        const moodInput = document.querySelector(`input[name="mood"][value="${entry.mood}"]`);
+        if (moodInput) {
+            moodInput.checked = true;
+            this.moodLabels.forEach(label => {
+                label.classList.remove('active');
+                if (label.getAttribute('for') === moodInput.id) {
+                    label.classList.add('active');
+                }
+            });
+        } else {
+            this.moodLabels.forEach(label => label.classList.remove('active'));
+        }
     }
 
     scrollToTop() {
