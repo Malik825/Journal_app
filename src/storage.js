@@ -53,7 +53,6 @@ class Storage {
         const entries = this.getAllEntries().sort((a, b) => new Date(a.date) - new Date(b.date));
 
         if (period === 'day') {
-            // Aggregate by hour for the last 24 hours
             const start = new Date(now.getTime() - 24 * 60 * 60 * 1000);
             for (let i = 0; i < 24; i++) {
                 const hourStart = new Date(start.getTime() + i * 60 * 60 * 1000);
@@ -69,7 +68,6 @@ class Storage {
                 moodData.data.push(avgMood);
             }
         } else if (period === 'month') {
-            // Aggregate by day for the last 30 days
             const start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
             for (let i = 0; i < 30; i++) {
                 const dayStart = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
@@ -85,7 +83,6 @@ class Storage {
                 moodData.data.push(avgMood);
             }
         } else {
-            // Aggregate by week (default: last 4 weeks)
             const start = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000);
             for (let i = 0; i < 4; i++) {
                 const weekStart = new Date(start.getTime() + i * 7 * 24 * 60 * 60 * 1000);
@@ -103,6 +100,24 @@ class Storage {
         }
 
         return moodData;
+    }
+
+    getCalendarEvents() {
+        const moodColors = {
+            '1': '#ef4444', // Red for Angry
+            '2': '#f97316', // Orange for Sad
+            '3': '#eab308', // Yellow for Neutral
+            '4': '#22c55e', // Green for Happy
+            '5': '#3b82f6'  // Blue for Very Happy
+        };
+
+        return this.entries.map(entry => ({
+            id: entry.id,
+            title: entry.title,
+            start: entry.date,
+            backgroundColor: moodColors[entry.mood] || moodColors['3'],
+            borderColor: moodColors[entry.mood] || moodColors['3']
+        }));
     }
 }
 

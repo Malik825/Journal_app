@@ -19,11 +19,15 @@ class UI {
         this.moodFilterButtons = document.querySelectorAll('.mood-filter-btn');
         this.dashboardBtn = document.getElementById('dashboard-btn');
         this.entriesBtn = document.getElementById('entries-btn');
+        this.calendarBtn = document.getElementById('calendar-btn');
         this.entriesView = document.getElementById('entries-view');
         this.dashboardView = document.getElementById('dashboard-view');
+        this.calendarView = document.getElementById('calendar-view');
         this.periodSelect = document.getElementById('period-select');
         this.moodChartCanvas = document.getElementById('mood-chart');
+        this.calendarContainer = document.getElementById('calendar');
         this.moodChart = null;
+        this.calendar = null;
         this.onOpenEntry = null;
     }
 
@@ -41,7 +45,9 @@ class UI {
         onOpenEntry,
         onShowDashboard,
         onShowEntries,
-        onPeriodChange
+        onShowCalendar,
+        onPeriodChange,
+        onCalendarDateClick
     }) {
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -91,27 +97,40 @@ class UI {
 
         this.dashboardBtn.addEventListener('click', () => onShowDashboard());
         this.entriesBtn.addEventListener('click', () => onShowEntries());
-
-        this.periodSelect.addEventListener('change', () => {
-            onPeriodChange(this.periodSelect.value);
-        });
+        this.calendarBtn.addEventListener('click', () => onShowCalendar());
     }
 
     toggleView(view) {
         if (view === 'entries') {
             this.entriesView.classList.remove('hidden');
             this.dashboardView.classList.add('hidden');
+            this.calendarView.classList.add('hidden');
             this.entriesBtn.classList.add('bg-indigo-600', 'text-white');
             this.entriesBtn.classList.remove('bg-white', 'text-gray-800');
             this.dashboardBtn.classList.add('bg-white', 'text-gray-800');
             this.dashboardBtn.classList.remove('bg-indigo-600', 'text-white');
-        } else {
+            this.calendarBtn.classList.add('bg-white', 'text-gray-800');
+            this.calendarBtn.classList.remove('bg-indigo-600', 'text-white');
+        } else if (view === 'dashboard') {
             this.entriesView.classList.add('hidden');
             this.dashboardView.classList.remove('hidden');
+            this.calendarView.classList.add('hidden');
             this.dashboardBtn.classList.add('bg-indigo-600', 'text-white');
             this.dashboardBtn.classList.remove('bg-white', 'text-gray-800');
             this.entriesBtn.classList.add('bg-white', 'text-gray-800');
             this.entriesBtn.classList.remove('bg-indigo-600', 'text-white');
+            this.calendarBtn.classList.add('bg-white', 'text-gray-800');
+            this.calendarBtn.classList.remove('bg-indigo-600', 'text-white');
+        } else {
+            this.entriesView.classList.add('hidden');
+            this.dashboardView.classList.add('hidden');
+            this.calendarView.classList.remove('hidden');
+            this.calendarBtn.classList.add('bg-indigo-600', 'text-white');
+            this.calendarBtn.classList.remove('bg-white', 'text-gray-800');
+            this.entriesBtn.classList.add('bg-white', 'text-gray-800');
+            this.entriesBtn.classList.remove('bg-indigo-600', 'text-white');
+            this.dashboardBtn.classList.add('bg-white', 'text-gray-800');
+            this.dashboardBtn.classList.remove('bg-indigo-600', 'text-white');
         }
     }
 
@@ -163,6 +182,35 @@ class UI {
                 }
             }
         });
+    }
+
+    renderCalendar(events) {
+        if (this.calendar) {
+            this.calendar.destroy();
+        }
+
+        this.calendar = new FullCalendar.Calendar(this.calendarContainer, {
+            initialView: 'dayGridMonth',
+            events: events,
+            eventClick: info => {
+                if (this.onOpenEntry) {
+                    this.onOpenEntry(info.event.id);
+                }
+            },
+            dateClick: info => {
+                if (onCalendarDateClick) {
+                    onCalendarDateClick(info.dateStr);
+                }
+            },
+            height: 'auto',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            }
+        });
+
+        this.calendar.render();
     }
 
     getFormData() {
@@ -265,7 +313,7 @@ class UI {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = entryDate.toLocaleDateString(undefined, options);
 
-        const MoodIcons = {
+        const moodIcons = {
             '1': { icon: 'fa-angry', text: 'Angry' },
             '2': { icon: 'fa-frown', text: 'Sad' },
             '3': { icon: 'fa-meh', text: 'Neutral' },
@@ -273,7 +321,7 @@ class UI {
             '5': { icon: 'fa-laugh', text: 'Very Happy' }
         };
 
-        const mood = MoodIcons[entry.mood] || MoodIcons['3'];
+        const mood = moodIcons[entry.mood] || moodIcons['3'];
 
         let displayContent = this.highlightText(entry.content, searchTerm);
 
