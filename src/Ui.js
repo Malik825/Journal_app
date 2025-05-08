@@ -1,3 +1,5 @@
+
+/* Updated Ui.js */
 class UI {
     constructor() {
         this.form = document.getElementById('journal-form');
@@ -12,7 +14,6 @@ class UI {
         this.closeModalBtn = document.getElementById('close-modal');
         this.deleteEntryBtn = document.getElementById('delete-entry');
         this.editEntryBtn = document.getElementById('edit-entry');
-        this.shareEntryBtn = document.getElementById('share-entry');
         this.modalTitle = document.getElementById('modal-title');
         this.modalContent = document.getElementById('modal-content');
         this.moodFilterButtons = document.querySelectorAll('.mood-filter-btn');
@@ -42,7 +43,6 @@ class UI {
         onDeleteEntry,
         onEditEntry,
         onOpenEntry,
-        onShareEntry,
         onShowDashboard,
         onShowEntries,
         onShowCalendar,
@@ -88,7 +88,6 @@ class UI {
         this.closeModalBtn.addEventListener('click', () => onCloseModal());
         this.deleteEntryBtn.addEventListener('click', () => onDeleteEntry());
         this.editEntryBtn.addEventListener('click', () => onEditEntry());
-        this.shareEntryBtn.addEventListener('click', () => onShareEntry(this.modal.dataset.entryId));
 
         this.modal.addEventListener('click', (e) => {
             if (e.target === this.modal) {
@@ -99,10 +98,6 @@ class UI {
         this.dashboardBtn.addEventListener('click', () => onShowDashboard());
         this.entriesBtn.addEventListener('click', () => onShowEntries());
         this.calendarBtn.addEventListener('click', () => onShowCalendar());
-
-        this.periodSelect.addEventListener('change', () => {
-            onPeriodChange(this.periodSelect.value);
-        });
     }
 
     toggleView(view) {
@@ -305,6 +300,7 @@ class UI {
         return entryElement;
     }
 
+
     highlightText(text, searchTerm) {
         if (!searchTerm || !text) return text;
         
@@ -329,7 +325,6 @@ class UI {
 
         let displayContent = this.highlightText(entry.content, searchTerm);
 
-        this.modal.dataset.entryId = entry.id;
         this.modalTitle.innerHTML = this.highlightText(entry.title, searchTerm);
         this.modalContent.innerHTML = `
             <div class="flex justify-between items-center mb-4">
@@ -354,7 +349,6 @@ class UI {
     closeModal() {
         this.modal.classList.add('hidden');
         document.body.style.overflow = '';
-        delete this.modal.dataset.entryId;
     }
 
     fillFormWithEntry(entry) {
@@ -382,45 +376,6 @@ class UI {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    }
-
-    shareEntry(entry) {
-        const moodText = {
-            '1': 'Angry',
-            '2': 'Sad',
-            '3': 'Neutral',
-            '4': 'Happy',
-            '5': 'Very Happy'
-        }[entry.mood] || 'Neutral';
-
-        const shareText = `${entry.title}\nMood: ${moodText}\nDate: ${new Date(entry.date).toLocaleDateString()}\n\n${entry.content.substring(0, 280)}...`;
-
-        if (navigator.share) {
-            navigator.share({
-                title: entry.title,
-                text: shareText
-            }).catch(err => {
-                console.error('Share failed:', err);
-                this.fallbackShare(shareText);
-            });
-        } else {
-            this.fallbackShare(shareText);
-        }
-    }
-
-    fallbackShare(text) {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        try {
-            document.execCommand('copy');
-            alert('Entry copied to clipboard! Paste it to share.');
-        } catch (err) {
-            console.error('Copy failed:', err);
-            alert('Unable to copy. Please manually copy the entry text.');
-        }
-        document.body.removeChild(textarea);
     }
 }
 
