@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 
-/* Updated main.js */
-=======
-/* src/main.js */
->>>>>>> test/tests
 import Storage from './storage.js';
 import UI from './Ui.js';
 import ThemeManager from './theme.js';
@@ -210,18 +205,8 @@ class JournalApp {
     }
 }
 
-<<<<<<< HEAD
-  
-  export default ThemeManager;
 
 
-
-
-
-
-
-=======
->>>>>>> test/tests
 document.addEventListener('DOMContentLoaded', () => {
     // Theme toggle functionality
     const themeToggle = document.getElementById('theme-toggle');
