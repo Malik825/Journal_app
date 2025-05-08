@@ -1,0 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Satisfy&family=Stint+Ultra+Expanded&family=Tagesschrift&display=swap');
+:root {
+  /* Light theme colors */
+  --color-bg: #f8fafc;
+  --color-text: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-primary:rgb(15 118 110);
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-input-bg: #ffffff;
+  --color-input-text: #1e293b;
+  --color-input-border: #cbd5e1;
+  --color-divider: #e2e8f0;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-scrollbar-track: #f1f1f1;
+  --color-scrollbar-thumb: #888;
+  --color-scrollbar-thumb-hover: #555;
+}
+
+[data-theme="dark"] {
+  /* Dark theme colors */
+  --color-bg: #0f172a;
+  --color-text: #e2e8f0;
+  --color-text-secondary: #94a3b8;
+  --color-primary: rgb(15 118 110);
+  --color-surface: #1e293b;
+  --color-border: #334155;
+  --color-input-bg: #334155;
+  --color-input-text: #e2e8f0;
+  --color-input-border: #475569;
+  --color-divider: #334155;
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-scrollbar-track: #1e293b;
+  --color-scrollbar-thumb: #475569;
+  --color-scrollbar-thumb-hover: #64748b;
+}
+
+/* Apply the variables to elements */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Poppins', sans-serif;
+}
+h1{
+  font-family: 'Great Vibes';
+}
+.bg-white {
+  background-color: var(--color-surface) !important;
+}
+
+.text-gray-800 {
+  color: var(--color-text) !important;
+}
+
+.text-gray-600,
+.text-gray-700 {
+  color: var(--color-text-secondary) !important;
+}
+
+.border-gray-200,
+.border-gray-300,
+.border {
+  border-color: var(--color-border) !important;
+}
+
+.bg-gray-50 {
+  background-color: var(--color-surface) !important;
+}
+
+.bg-gray-100 {
+  background-color: var(--color-border) !important;
+}
+
+input,
+textarea,
+select {
+  background-color: var(--color-input-bg) !important;
+  color: var(--color-input-text) !important;
+  border-color: var(--color-input-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-secondary) !important;
+}
+
+.divide-gray-200 {
+  border-color: var(--color-divider) !important;
+}
+
+.shadow-md {
+  border-top: 1.5px solid var(--color-shadow);
+  box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -1px var(--color-shadow) !important;
+}
+
+#no-entries {
+  color: var(--color-text-secondary) !important;
+}
+
+/* Scrollbar styles using variables */
+::-webkit-scrollbar-track {
+  background: var(--color-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar-thumb);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-thumb-hover);
+}
+
+.active{
+  background: var(--color-primary) !important;
+}
+/* Active mood icon style */
+.mood-label.active {
+  background-color: rgb(15 118 110) !important;
+  color: white;
+  border-color: rgb(15 118 110);
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+
+/* Print styles */
+@media print {
+  .no-print {
+      display: none !important;
+  }
+  .entry-content {
+      break-inside: avoid;
+  }
+}
+/* Add these to your existing style.css file */
+
+/* Mood selection styling */
+.mood-checkbox:checked + .mood-label {
+  border-color: #4f46e5;
+}
+
+.mood-label {
+  border-color: #e5e7eb;
+}
+
+/* Mood filter button styling */
+.mood-filter-btn {
+  border-color: #e5e7eb;
+  background-color: white;
+  transition: all 0.2s;
+}
+
+.mood-filter-btn:hover {
+  background-color: #f9fafb;
+}
+
+.mood-filter-btn.active {
+  border-color: #4f46e5;
+  background-color: #eef2ff;
+}
+
+/* Entry styling */
+.entry-content {
+  transition: background-color 0.2s;
+}
+
+.entry-content:hover {
+  /* background-color: #f9fafb; */
+}
+
+/* Highlight styling for search results */
+.highlight {
+  background-color: #fef3c7;
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.2rem;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+      display: none !important;
+  }
+  
+  body {
+      background-color: white;
+  }
+  
+  .container {
+      max-width: 100%;
+      padding: 0;
+  }
+  
+  .shadow-md, .shadow-sm, .shadow-lg, .shadow-xl {
+      box-shadow: none !important;
+  }
+  
+  .entry-content {
+      page-break-inside: avoid;
+      break-inside: avoid;
+  }
+}
+
+/* Animation */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Analytics Dashboard Styles */
+#analytics-dashboard {
+  transition: all 0.3s ease;
+}
+
+.day-of-week-item {
+  min-width: 60px;
+}
+
+/* Chart tooltip */
+.chart-tooltip {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* Enhanced Card Hover Effects */
+.bg-gray-50:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Custom scrollbar */
