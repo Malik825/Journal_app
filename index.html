@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="./src/css/style.css">
 </head>
 <body class="bg-gray-50 min-h-screen font-sans" data-theme="light">
-  <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
+  <div class="container mx-auto px-8 sm:px-[8%] py-4 sm:py-8">
     <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-indigo-700">Mindful Journal</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-teal-700">Mindful Journal</h1>
             <p class="text-sm sm:text-base text-gray-600">Capture your thoughts, reflect, and grow</p>
         </div>
         <div class="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end">
@@ -41,12 +41,12 @@
                 <form id="journal-form" class="space-y-4">
                     <div>
                         <label for="entry-date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                        <input type="date" id="entry-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        <input type="date" id="entry-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                     </div>
                     
                     <div>
                         <label for="entry-title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                        <input type="text" id="entry-title" placeholder="How was your day?" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        <input type="text" id="entry-title" placeholder="How was your day?" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                     </div>
                     
                     <div>
@@ -81,14 +81,14 @@
                     
                     <div>
                         <label for="entry-content" class="block text-sm font-medium text-gray-700 mb-1">Your Thoughts</label>
-                        <textarea id="entry-content" rows="6" placeholder="Write your thoughts here..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required></textarea>
+                        <textarea id="entry-content" rows="6" placeholder="Write your thoughts here..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required></textarea>
                     </div>
                     
                     <div class="flex justify-between items-center pt-2">
                         <button type="button" id="clear-btn" class="text-gray-600 hover:text-gray-800 flex items-center">
                             <i class="fas fa-trash-alt mr-1"></i> Clear
                         </button>
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
+                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
                             <i class="fas fa-plus mr-2"></i> Add Entry
                         </button>
                     </div>
@@ -100,7 +100,7 @@
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
                 <div class="px-3 sm:px-6 py-4 border-b border-gray-200 flex flex-col space-y-4">
                     <div class="flex flex-wrap gap-2">
-                        <button id="entries-btn" class="bg-indigo-600 text-white px-3 sm:px-4 py-2 rounded-md shadow-sm flex items-center">
+                        <button id="entries-btn" class="bg-teal-600 text-white px-3 sm:px-4 py-2 rounded-md shadow-sm flex items-center">
                             <i class="fas fa-book"></i>
                             <span class="ml-2">Entries</span>
                         </button>
@@ -118,10 +118,10 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
-                            <input type="text" id="search-input" placeholder="Search entries..." class="pl-10 w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <input type="text" id="search-input" placeholder="Search entries..." class="pl-10 w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-teal-500">
                         </div>
                         <div class="relative sm:w-auto">
-                            <select id="filter-select" class="appearance-none w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <select id="filter-select" class="appearance-none w-full bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-teal-500">
                                 <option value="all">All Entries</option>
                                 <option value="today">Today</option>
                                 <option value="week">This Week</option>
@@ -176,7 +176,7 @@
                     <h2 class="text-xl font-semibold mb-4 text-gray-800">Mood Trends</h2>
                     <div class="mb-4">
                         <label for="period-select" class="block text-sm font-medium text-gray-700 mb-2">Time Period</label>
-                        <select id="period-select" class="appearance-none w-full sm:w-auto bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select id="period-select" class="appearance-none w-full sm:w-auto bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-teal-500">
                             <option value="day">Last 24 Hours</option>
                             <option value="week" selected>Last 4 Weeks</option>
                             <option value="month">Last 30 Days</option>
@@ -210,7 +210,7 @@
             <button id="delete-entry" class="text-red-600 hover:text-red-800 flex items-center">
                 <i class="fas fa-trash-alt mr-1"></i> Delete
             </button>
-            <button id="edit-entry" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
+            <button id="edit-entry" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
                 <i class="fas fa-edit mr-2"></i> Edit
             </button>
         </div>
@@ -218,7 +218,6 @@
 </div>
  
 <script type="module" src="./src/main.js"></script>
-<script type="module" src="./src/analytics.js"></script>
-<script type="module" src="./src/analyticsDashboard.js"></script>
+
 </body>
 </html>
