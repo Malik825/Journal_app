@@ -3,6 +3,7 @@ import UI from './Ui.js';
 import ThemeManager from './theme.js';
 
 class JournalApp {
+
     constructor() {
         this.storage = new Storage();
         this.ui = new UI();
