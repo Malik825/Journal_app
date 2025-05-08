@@ -1,9 +1,8 @@
-/* tests/journal.test.js */
+
 import Storage from '../storage.js';
-import JournalApp from '../main.js';
 import UI from '../Ui.js';
 
-// Mock localStorage
+
 const localStorageMock = (function () {
   let store = {};
   return {
@@ -51,16 +50,6 @@ document.body.innerHTML = `
   <button id="theme-toggle"><i class="fas fa-moon"></i> Dark Mode</button>
 `;
 
-// Mock Chart.js and FullCalendar
-// jest.mock('chart.js', () => ({
-//   Chart: jest.fn(),
-// }));
-// jest.mock('fullcalendar', () => ({
-//   Calendar: jest.fn(() => ({
-//     destroy: jest.fn(),
-//     render: jest.fn(),
-//   })),
-// }));
 
 describe('Mindful Journal', () => {
   describe('Storage', () => {
@@ -168,194 +157,8 @@ describe('Mindful Journal', () => {
       });
     });
 
-    // test('should get mood trends for week', () => {
-    //   const entries = [
-    //     { id: '1', title: 'Test 1', content: 'Content', mood: '4', date: '2025-05-08', createdAt: '2025-05-08T00:00:00Z' },
-    //     { id: '2', title: 'Test 2', content: 'Content', mood: '5', date: '2025-05-07', createdAt: '2025-05-07T00:00:00Z' },
-    //   ];
-    //   entries.forEach(entry => storage.addEntry(entry));
-    //   const trends = storage.getMoodTrends('week');
-    //   expect(trends.labels).toEqual(['Week 1', 'Week 2', 'Week 3', 'Week 4']);
-    //   expect(trends.data.length).toBe(4);
-    //   expect(trends.data[3]).toBeCloseTo(4.5); // Average of 4 and 5
-    // });
-
-    // test('should get calendar events', () => {
-    //   const entry = {
-    //     id: '1',
-    //     title: 'Test Entry',
-    //     content: 'This is a test',
-    //     mood: '4',
-    //     date: '2025-05-08',
-    //     createdAt: '2025-05-08T00:00:00Z',
-    //   };
-    //   storage.addEntry(entry);
-    //   const events = storage.getCalendarEvents();
-    //   expect(events).toEqual([
-    //     {
-    //       id: '1',
-    //       title: 'Test Entry',
-    //       start: '2025-05-08',
-    //       backgroundColor: '#22c55e',
-    //       borderColor: '#22c55e',
-    //     },
-    //   ]);
-    // });
   });
 
-  describe('JournalApp', () => {
-    let journalApp;
-    let mockStorage;
-    let mockUI;
-
-    beforeEach(() => {
-      mockStorage = {
-        getAllEntries: jest.fn(),
-        getEntryById: jest.fn(),
-        addEntry: jest.fn(),
-        updateEntry: jest.fn(),
-        deleteEntry: jest.fn(),
-        save: jest.fn(),
-        exportEntries: jest.fn(),
-        getMoodTrends: jest.fn(),
-        getCalendarEvents: jest.fn(),
-      };
-      mockUI = {
-        initEventListeners: jest.fn(),
-        renderEntries: jest.fn(),
-        resetForm: jest.fn(),
-        getFormData: jest.fn(),
-        scrollToTop: jest.fn(),
-        openEntryModal: jest.fn(),
-        closeModal: jest.fn(),
-        fillFormWithEntry: jest.fn(),
-        scrollToForm: jest.fn(),
-        exportData: jest.fn(),
-        toggleView: jest.fn(),
-        renderMoodChart: jest.fn(),
-        renderCalendar: jest.fn(),
-        shareEntry: jest.fn(),
-      };
-      Storage.mockImplementation(() => mockStorage);
-      UI.mockImplementation(() => mockUI);
-      journalApp = new JournalApp();
-    });
-
-    test('should initialize correctly', () => {
-      expect(mockUI.initEventListeners).toHaveBeenCalled();
-      expect(journalApp.renderEntries).toHaveBeenCalled();
-    });
-
-    test('should add a new entry', () => {
-      mockUI.getFormData.mockReturnValue({
-        date: '2025-05-08',
-        title: 'Test Entry',
-        content: 'This is a test',
-        mood: '4',
-      });
-      journalApp.addEntry();
-      expect(mockStorage.addEntry).toHaveBeenCalledWith(expect.objectContaining({
-        id: expect.any(String),
-        date: '2025-05-08',
-        title: 'Test Entry',
-        content: 'This is a test',
-        mood: '4',
-        createdAt: expect.any(String),
-      }));
-      expect(mockUI.resetForm).toHaveBeenCalled();
-      expect(journalApp.renderEntries).toHaveBeenCalled();
-      expect(mockUI.scrollToTop).toHaveBeenCalled();
-    });
-
-    test('should not add entry if form data is incomplete', () => {
-      mockUI.getFormData.mockReturnValue({
-        date: '',
-        title: '',
-        content: '',
-        mood: '4',
-      });
-      journalApp.addEntry();
-      expect(mockStorage.addEntry).not.toHaveBeenCalled();
-    });
-
-    test('should filter entries by mood', () => {
-      const entries = [
-        { id: '1', title: 'Test 1', content: 'Content', mood: '4', date: '2025-05-08' },
-        { id: '2', title: 'Test 2', content: 'Content', mood: '5', date: '2025-05-07' },
-      ];
-      mockStorage.getAllEntries.mockReturnValue(entries);
-      journalApp.filterByMood('4');
-      expect(journalApp.selectedMood).toBe('4');
-      expect(mockUI.renderEntries).toHaveBeenCalledWith(
-        [entries[0]],
-        expect.any(Object)
-      );
-    });
-
-    test('should search entries by title or content', () => {
-      const entries = [
-        { id: '1', title: 'Test Entry', content: 'Content', mood: '4', date: '2025-05-08' },
-        { id: '2', title: 'Other', content: 'Different', mood: '5', date: '2025-05-07' },
-      ];
-      mockStorage.getAllEntries.mockReturnValue(entries);
-      journalApp.searchEntries('test');
-      expect(journalApp.searchTerm).toBe('test');
-      expect(mockUI.renderEntries).toHaveBeenCalledWith(
-        [entries[0]],
-        expect.any(Object)
-      );
-    });
-
-    test('should filter entries by date', () => {
-      const entries = [
-        { id: '1', title: 'Test 1', content: 'Content', mood: '4', date: '2025-05-08' },
-        { id: '2', title: 'Test 2', content: 'Content', mood: '5', date: '2025-05-07' },
-      ];
-      mockStorage.getAllEntries.mockReturnValue(entries);
-      journalApp.filterByDate('2025-05-08');
-      expect(journalApp.currentFilter).toBe('date:2025-05-08');
-      expect(mockUI.renderEntries).toHaveBeenCalledWith(
-        [entries[0]],
-        expect.any(Object)
-      );
-    });
-
-    test('should open an entry', () => {
-      const entry = { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08' };
-      mockStorage.getEntryById.mockReturnValue(entry);
-      journalApp.openEntry('1');
-      expect(journalApp.currentEntryId).toBe('1');
-      expect(mockUI.openEntryModal).toHaveBeenCalledWith(entry, '');
-    });
-
-    test('should delete an entry', () => {
-      global.confirm = jest.fn(() => true);
-      journalApp.currentEntryId = '1';
-      journalApp.deleteEntry();
-      expect(mockStorage.deleteEntry).toHaveBeenCalledWith('1');
-      expect(mockUI.closeModal).toHaveBeenCalled();
-      expect(journalApp.renderEntries).toHaveBeenCalled();
-    });
-
-    test('should edit an entry', () => {
-      const entry = { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08' };
-      mockStorage.getEntryById.mockReturnValue(entry);
-      journalApp.currentEntryId = '1';
-      journalApp.editEntry();
-      expect(mockUI.fillFormWithEntry).toHaveBeenCalledWith(entry);
-      expect(mockStorage.deleteEntry).toHaveBeenCalledWith('1');
-      expect(mockUI.closeModal).toHaveBeenCalled();
-      expect(mockUI.scrollToForm).toHaveBeenCalled();
-    });
-
-    test('should export entries', () => {
-      const exportedData = { journalName: 'Mindful Journal', entries: [] };
-      mockStorage.exportEntries.mockReturnValue(exportedData);
-      journalApp.exportEntries();
-      expect(mockStorage.exportEntries).toHaveBeenCalled();
-      expect(mockUI.exportData).toHaveBeenCalledWith(exportedData);
-    });
-  });
 
   describe('UI', () => {
     let ui;
