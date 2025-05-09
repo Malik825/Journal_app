@@ -122,13 +122,13 @@ textarea::placeholder {
 
 /* No scrollbar utility class */
 .no-scrollbar {
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  scrollbar-width: none; /* Firefox */
-  overflow-x: auto;
+  -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+  scrollbar-width: none !important; /* Firefox */
+  overflow-x: auto !important;
 }
 
 .no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+  display: none !important; /* Chrome, Safari, Edge */
 }
 
 /* Active state */
