@@ -125,6 +125,7 @@ textarea::placeholder {
   -ms-overflow-style: none !important; /* Internet Explorer 10+ */
   scrollbar-width: none !important; /* Firefox */
   overflow-x: auto !important;
+  overflow-y: auto !important;
 }
 
 .no-scrollbar::-webkit-scrollbar {
