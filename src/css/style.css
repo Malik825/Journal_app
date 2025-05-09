@@ -277,3 +277,65 @@ textarea::placeholder {
     break-inside: avoid;
   }
 }
+/* Entry container styles */
+#entries-container {
+  max-height: 60vh;
+}
+
+@media (min-width: 640px) {
+  #entries-container {
+      max-height: calc(100vh - 300px);
+  }
+}
+
+/* Entry styles */
+.entry {
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s, color 0.3s;
+  overflow: hidden; /* Prevent content from spilling out */
+  word-break: break-word; /* Break long words */
+  text-overflow: ellipsis; /* Truncate overflowing text */
+}
+
+.entry-content {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limit to 3 lines */
+  -webkit-box-orient: vertical;
+}
+
+/* Modal content */
+#modal-content {
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* No entries message */
+#no-entries {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Tailwind override for scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mood filter buttons */
+.mood-filter-btn.active {
+  background-color: #0d9488;
+  color: white;
+}
+
+/* Form inputs */
+input, textarea, select {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
