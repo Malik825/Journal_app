@@ -1,10 +1,13 @@
+/* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Satisfy&family=Stint+Ultra+Expanded&family=Tagesschrift&display=swap');
+
+/* Theme variables */
 :root {
   /* Light theme colors */
   --color-bg: #f8fafc;
   --color-text: #1e293b;
   --color-text-secondary: #64748b;
-  --color-primary:rgb(15 118 110);
+  --color-primary: rgb(15 118 110);
   --color-surface: #ffffff;
   --color-border: #e2e8f0;
   --color-input-bg: #ffffff;
@@ -15,14 +18,15 @@
   --color-scrollbar-track: #f1f1f1;
   --color-scrollbar-thumb: #888;
   --color-scrollbar-thumb-hover: #555;
+  --color-highlight: #fef3c7;
+  --transition-default: all 0.2s ease;
 }
 
+/* Dark theme */
 [data-theme="dark"] {
-  /* Dark theme colors */
   --color-bg: #0f172a;
   --color-text: #e2e8f0;
   --color-text-secondary: #94a3b8;
-  --color-primary: rgb(15 118 110);
   --color-surface: #1e293b;
   --color-border: #334155;
   --color-input-bg: #334155;
@@ -35,15 +39,18 @@
   --color-scrollbar-thumb-hover: #64748b;
 }
 
-/* Apply the variables to elements */
+/* Base styles */
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: 'Poppins', sans-serif;
 }
-h1{
-  font-family: 'Great Vibes';
+
+h1 {
+  font-family: 'Great Vibes', cursive;
 }
+
+/* Color overrides */
 .bg-white {
   background-color: var(--color-surface) !important;
 }
@@ -71,6 +78,7 @@ h1{
   background-color: var(--color-border) !important;
 }
 
+/* Form elements */
 input,
 textarea,
 select {
@@ -88,16 +96,18 @@ textarea::placeholder {
   border-color: var(--color-divider) !important;
 }
 
+/* Shadow effects */
 .shadow-md {
   border-top: 1.5px solid var(--color-shadow);
   box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -1px var(--color-shadow) !important;
 }
 
+/* Empty state */
 #no-entries {
   color: var(--color-text-secondary) !important;
 }
 
-/* Scrollbar styles using variables */
+/* Scrollbar styles */
 ::-webkit-scrollbar-track {
   background: var(--color-scrollbar-track);
 }
@@ -110,62 +120,74 @@ textarea::placeholder {
   background: var(--color-scrollbar-thumb-hover);
 }
 
-.active{
+/* No scrollbar utility class */
+.no-scrollbar {
+  -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+  scrollbar-width: none !important; /* Firefox */
+  overflow-x: auto !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Edge */
+}
+
+/* Active state */
+.active {
   background: var(--color-primary) !important;
 }
-/* Active mood icon style */
-.mood-label.active {
-  background-color: rgb(15 118 110) !important;
-  color: white;
-  border-color: rgb(15 118 110);
-  transform: scale(1.1);
-  transition: all 0.2s ease;
-}
+
+/* Mood styling */
+.mood-label.active,
 .mood-label:hover {
-  background-color: rgb(15 118 110) !important;
+  background-color: var(--color-primary) !important;
   color: white;
-  border-color: rgb(15 118 110);
+  border-color: var(--color-primary);
   transform: scale(1.1);
-  transition: all 0.2s ease;
+  transition: var(--transition-default);
 }
 
-
-/* Print styles */
-@media print {
-  .no-print {
-      display: none !important;
-  }
-  .entry-content {
-      break-inside: avoid;
-  }
-}
-/* Add these to your existing style.css file */
-
-/* Mood selection styling */
 .mood-checkbox:checked + .mood-label {
-  border-color: teal;
+  border-color: var(--color-primary);
 }
 
 .mood-label {
-  border-color: #e5e7eb;
+  border-color: var(--color-border);
 }
 
-/* Mood filter button styling */
+/* Mood filter */
+.mood-filter {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background-color: #f7fafc;
+  overflow-x: auto;
+}
+
 .mood-filter-btn {
-  border-color: #e5e7eb;
-  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  font-size: 14px;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-default);
 }
 
-.mood-filter-btn:hover {
-  background-color: teal;
-  color: #fff;
-
-
-}
-
+.mood-filter-btn:hover,
 .mood-filter-btn.active {
-  border-color: teal;
+  background-color: var(--color-primary);
   color: #fff;
+  border-color: var(--color-primary);
+}
+
+.mood-filter-btn i {
+  margin-right: 4px;
+}
+
+.mood-filter-text {
+  display: none;
 }
 
 /* Entry styling */
@@ -173,43 +195,14 @@ textarea::placeholder {
   transition: background-color 0.2s;
 }
 
-.entry-content:hover {
-  /* background-color: #f9fafb; */
-}
-
-/* Highlight styling for search results */
+/* Highlight for search results */
 .highlight {
-  background-color: #fef3c7;
+  background-color: var(--color-highlight);
   padding: 0.1rem 0.2rem;
   border-radius: 0.2rem;
 }
 
-/* Print styles */
-@media print {
-  .no-print {
-      display: none !important;
-  }
-  
-  body {
-      background-color: white;
-  }
-  
-  .container {
-      max-width: 100%;
-      padding: 0;
-  }
-  
-  .shadow-md, .shadow-sm, .shadow-lg, .shadow-xl {
-      box-shadow: none !important;
-  }
-  
-  .entry-content {
-      page-break-inside: avoid;
-      break-inside: avoid;
-  }
-}
-
-/* Animation */
+/* Animations */
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
 }
@@ -219,9 +212,9 @@ textarea::placeholder {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Analytics Dashboard Styles */
+/* Analytics Dashboard */
 #analytics-dashboard {
-  transition: all 0.3s ease;
+  transition: var(--transition-default);
 }
 
 .day-of-week-item {
@@ -238,10 +231,48 @@ textarea::placeholder {
   pointer-events: none;
 }
 
-/* Enhanced Card Hover Effects */
+/* Card hover effects */
 .bg-gray-50:hover {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.3s ease;
 }
 
-/* Custom scrollbar */
+/* Media queries */
+@media (min-width: 640px) {
+  .mood-filter {
+    padding: 12px 24px;
+  }
+  
+  .mood-filter-btn {
+    padding: 4px 12px;
+  }
+  
+  .mood-filter-text {
+    display: inline;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background-color: white;
+  }
+  
+  .container {
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .shadow-md, .shadow-sm, .shadow-lg, .shadow-xl {
+    box-shadow: none !important;
+  }
+  
+  .entry-content {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

@@ -1,3 +1,5 @@
+
+/* Updated Ui.js */
 class UI {
     constructor() {
         this.form = document.getElementById('journal-form');
@@ -24,11 +26,9 @@ class UI {
         this.periodSelect = document.getElementById('period-select');
         this.moodChartCanvas = document.getElementById('mood-chart');
         this.calendarContainer = document.getElementById('calendar');
-        this.moodLabels = document.querySelectorAll('.mood-label');
         this.moodChart = null;
         this.calendar = null;
         this.onOpenEntry = null;
-        this.onCalendarDateClick = null;
     }
 
     initEventListeners({
@@ -54,7 +54,6 @@ class UI {
             onFormSubmit();
         });
         this.onOpenEntry = onOpenEntry;
-        this.onCalendarDateClick = onCalendarDateClick;
 
         this.clearBtn.addEventListener('click', () => {
             onClearForm();
@@ -136,12 +135,6 @@ class UI {
     }
 
     renderMoodChart(moodData, period) {
-        if (!window.Chart) {
-            console.error('Chart.js is not loaded.');
-            this.moodChartCanvas.parentElement.innerHTML = '<p class="text-red-500">Error: Unable to load mood chart. Please try again later.</p>';
-            return;
-        }
-
         if (this.moodChart) {
             this.moodChart.destroy();
         }
@@ -153,7 +146,7 @@ class UI {
                 datasets: [{
                     label: 'Average Mood',
                     data: moodData.data,
-                    borderColor: 'teal',
+                    borderColor: 'rgba(99, 102, 241, 1)',
                     backgroundColor: 'rgba(99, 102, 241, 0.2)',
                     fill: true,
                     tension: 0.4
@@ -192,12 +185,6 @@ class UI {
     }
 
     renderCalendar(events) {
-        if (!window.FullCalendar) {
-            console.error('FullCalendar is not loaded.');
-            this.calendarContainer.innerHTML = '<p class="text-red-500">Error: Unable to load calendar. Please try again later.</p>';
-            return;
-        }
-
         if (this.calendar) {
             this.calendar.destroy();
         }
@@ -211,8 +198,8 @@ class UI {
                 }
             },
             dateClick: info => {
-                if (this.onCalendarDateClick) {
-                    this.onCalendarDateClick(info.dateStr);
+                if (onCalendarDateClick) {
+                    onCalendarDateClick(info.dateStr);
                 }
             },
             height: 'auto',
@@ -237,15 +224,6 @@ class UI {
 
     resetForm() {
         this.form.reset();
-        // Ensure Neutral mood is checked and active
-        const neutralMood = document.getElementById('mood-3');
-        neutralMood.checked = true;
-        this.moodLabels.forEach(label => {
-            label.classList.remove('active');
-            if (label.getAttribute('for') === 'mood-3') {
-                label.classList.add('active');
-            }
-        });
     }
 
     renderEntries(entries, { filter, searchTerm, selectedMood }) {
@@ -292,7 +270,7 @@ class UI {
 
         entryElement.innerHTML = `
             <div class="flex justify-between items-start mb-2">
-                <h3 class="text-lg font-medium">${displayTitle}</h3>
+                <h3 class="text-lg font-medium ">${displayTitle}</h3>
                 <div class="flex items-center">
                     <i class="fas ${mood.icon} ${mood.color} text-xl mr-2"></i>
                     <span class="text-sm text-gray-500">${formattedDate}</span>
@@ -321,6 +299,7 @@ class UI {
     
         return entryElement;
     }
+
 
     highlightText(text, searchTerm) {
         if (!searchTerm || !text) return text;
@@ -376,18 +355,7 @@ class UI {
         document.getElementById('entry-date').value = entry.date;
         document.getElementById('entry-title').value = entry.title;
         document.getElementById('entry-content').value = entry.content;
-        const moodInput = document.querySelector(`input[name="mood"][value="${entry.mood}"]`);
-        if (moodInput) {
-            moodInput.checked = true;
-            this.moodLabels.forEach(label => {
-                label.classList.remove('active');
-                if (label.getAttribute('for') === moodInput.id) {
-                    label.classList.add('active');
-                }
-            });
-        } else {
-            this.moodLabels.forEach(label => label.classList.remove('active'));
-        }
+        document.querySelector(`input[name="mood"][value="${entry.mood}"]`).checked = true;
     }
 
     scrollToTop() {

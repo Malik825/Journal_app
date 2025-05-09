@@ -204,7 +204,8 @@ class JournalApp {
     }
 }
 
+export default JournalApp;
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the app
     new JournalApp();
 });
