@@ -5,6 +5,7 @@ class Storage {
             this.entries = storedEntries ? JSON.parse(storedEntries) : [];
         } catch (e) {
             console.error('Failed to load entries from localStorage:', e);
+            alert('Failed to load journal entries. Please check your browser storage settings.');
             this.entries = [];
         }
     }
@@ -40,6 +41,7 @@ class Storage {
             localStorage.setItem('journalEntries', JSON.stringify(this.entries));
         } catch (e) {
             console.error('Failed to save entries to localStorage:', e);
+            alert('Failed to save your journal entries. Please check your browser storage settings.');
         }
     }
 
@@ -52,13 +54,54 @@ class Storage {
         };
     }
 
-    // Placeholder for other methods
-    getMoodTrends() {
-        return { labels: [], data: [] };
+    getMoodTrends(period) {
+        const now = new Date();
+        const entries = this.entries.filter(entry => {
+            const entryDate = new Date(entry.date);
+            if (period === 'week') {
+                const weekAgo = new Date(now);
+                weekAgo.setDate(now.getDate() - 7);
+                return entryDate >= weekAgo;
+            } else if (period === 'month') {
+                const monthAgo = new Date(now);
+                monthAgo.setMonth(now.getMonth() - 1);
+                return entryDate >= monthAgo;
+            }
+            return true; // 'all' period
+        });
+
+        const moodMap = { '1': 1, '2': 2, '3': 3, '4': 4, '5': 5 };
+        const labels = [];
+        const data = [];
+
+        // Group by date (daily averages)
+        const grouped = entries.reduce((acc, entry) => {
+            const date = new Date(entry.date).toLocaleDateString();
+            if (!acc[date]) acc[date] = [];
+            acc[date].push(Number(moodMap[entry.mood]));
+            return acc;
+        }, {});
+
+        // Sort dates and calculate averages
+        Object.keys(grouped)
+            .sort((a, b) => new Date(a) - new Date(b))
+            .forEach(date => {
+                labels.push(date);
+                const avgMood = grouped[date].reduce((sum, mood) => sum + mood, 0) / grouped[date].length;
+                data.push(avgMood);
+            });
+
+        return { labels, data };
     }
 
     getCalendarEvents() {
-        return [];
+        return this.entries.map(entry => ({
+            id: entry.id,
+            title: entry.title,
+            start: entry.date,
+            allDay: true,
+            extendedProps: { mood: entry.mood }
+        }));
     }
 }
 

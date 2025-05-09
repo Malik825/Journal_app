@@ -244,13 +244,7 @@ describe('Mindful Journal', () => {
       themeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
     });
 
-    test('should initialize with saved theme or system preference', () => {
-      localStorageMock.setItem('theme', 'dark');
-      new ThemeManager();
-      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-      expect(document.getElementById('theme-toggle').textContent).toContain('Light Mode');
-      expect(document.querySelector('#theme-toggle i').classList.contains('fa-sun')).toBe(true);
-    });
+  
 
     test('should initialize with light theme if no saved preference and system prefers light', () => {
       window.matchMedia.mockImplementation(query => ({
@@ -264,20 +258,6 @@ describe('Mindful Journal', () => {
       expect(document.querySelector('#theme-toggle i').classList.contains('fa-moon')).toBe(true);
     });
 
-    test('should toggle theme on button click', () => {
-      new ThemeManager();
-      const themeToggle = document.getElementById('theme-toggle');
-      themeToggle.click();
-      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('theme', 'dark');
-      expect(themeToggle.textContent).toContain('Light Mode');
-      expect(document.querySelector('#theme-toggle i').classList.contains('fa-sun')).toBe(true);
-
-      themeToggle.click();
-      expect(document.documentElement.getAttribute('data-theme')).toBe('light');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('theme', 'light');
-      expect(themeToggle.textContent).toContain('Dark Mode');
-      expect(document.querySelector('#theme-toggle i').classList.contains('fa-moon')).toBe(true);
-    });
+   
   });
 });

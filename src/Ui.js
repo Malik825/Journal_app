@@ -1,5 +1,3 @@
-
-/* Updated Ui.js */
 class UI {
     constructor() {
         this.form = document.getElementById('journal-form');
@@ -26,9 +24,25 @@ class UI {
         this.periodSelect = document.getElementById('period-select');
         this.moodChartCanvas = document.getElementById('mood-chart');
         this.calendarContainer = document.getElementById('calendar');
+        this.moodLabels = document.querySelectorAll('.mood-label');
         this.moodChart = null;
         this.calendar = null;
         this.onOpenEntry = null;
+
+        // Validate critical DOM elements
+        const requiredElements = [
+            { name: 'form', element: this.form },
+            { name: 'entriesContainer', element: this.entriesContainer },
+            { name: 'entriesView', element: this.entriesView },
+            { name: 'dashboardView', element: this.dashboardView },
+            { name: 'calendarView', element: this.calendarView },
+            { name: 'modal', element: this.modal }
+        ];
+        requiredElements.forEach(({ name, element }) => {
+            if (!element) {
+                console.error(`Required DOM element "${name}" is missing. Please check the HTML.`);
+            }
+        });
     }
 
     initEventListeners({
@@ -49,23 +63,33 @@ class UI {
         onPeriodChange,
         onCalendarDateClick
     }) {
-        this.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            onFormSubmit();
-        });
+        if (this.form) {
+            this.form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                onFormSubmit();
+            });
+        }
         this.onOpenEntry = onOpenEntry;
 
-        this.clearBtn.addEventListener('click', () => {
-            onClearForm();
-        });
+        if (this.clearBtn) {
+            this.clearBtn.addEventListener('click', () => {
+                onClearForm();
+                // Clear active class from mood labels when form is cleared
+                this.moodLabels.forEach(label => label.classList.remove('active'));
+            });
+        }
 
-        this.filterSelect.addEventListener('change', () => {
-            onFilterChange(this.filterSelect.value);
-        });
+        if (this.filterSelect) {
+            this.filterSelect.addEventListener('change', () => {
+                onFilterChange(this.filterSelect.value);
+            });
+        }
 
-        this.searchInput.addEventListener('input', (e) => {
-            onSearch(e.target.value.trim().toLowerCase());
-        });
+        if (this.searchInput) {
+            this.searchInput.addEventListener('input', (e) => {
+                onSearch(e.target.value.trim().toLowerCase());
+            });
+        }
 
         this.moodFilterButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -75,66 +99,116 @@ class UI {
             });
         });
 
-        document.querySelector('.mood-filter-btn[data-mood="all"]').classList.add('active');
-
-        this.printBtn.addEventListener('click', () => {
-            onPrint();
+        // Add event listeners for mood labels
+        this.moodLabels.forEach(label => {
+            label.addEventListener('click', () => {
+                this.moodLabels.forEach(l => l.classList.remove('active'));
+                label.classList.add('active');
+            });
         });
 
-        this.exportBtn.addEventListener('click', () => {
-            onExport();
-        });
+        const allMoodBtn = document.querySelector('.mood-filter-btn[data-mood="all"]');
+        if (allMoodBtn) {
+            allMoodBtn.classList.add('active');
+        } else {
+            console.warn('Mood filter button for "all" not found.');
+        }
 
-        this.closeModalBtn.addEventListener('click', () => onCloseModal());
-        this.deleteEntryBtn.addEventListener('click', () => onDeleteEntry());
-        this.editEntryBtn.addEventListener('click', () => onEditEntry());
+        if (this.printBtn) {
+            this.printBtn.addEventListener('click', () => {
+                onPrint();
+            });
+        }
 
-        this.modal.addEventListener('click', (e) => {
-            if (e.target === this.modal) {
-                onCloseModal();
-            }
-        });
+        if (this.exportBtn) {
+            this.exportBtn.addEventListener('click', () => {
+                onExport();
+            });
+        }
 
-        this.dashboardBtn.addEventListener('click', () => onShowDashboard());
-        this.entriesBtn.addEventListener('click', () => onShowEntries());
-        this.calendarBtn.addEventListener('click', () => onShowCalendar());
+        if (this.closeModalBtn) {
+            this.closeModalBtn.addEventListener('click', () => onCloseModal());
+        }
+
+        if (this.deleteEntryBtn) {
+            this.deleteEntryBtn.addEventListener('click', () => onDeleteEntry());
+        }
+
+        if (this.editEntryBtn) {
+            this.editEntryBtn.addEventListener('click', () => onEditEntry());
+        }
+
+        if (this.modal) {
+            this.modal.addEventListener('click', (e) => {
+                if (e.target === this.modal) {
+                    onCloseModal();
+                }
+            });
+        }
+
+        if (this.dashboardBtn) {
+            this.dashboardBtn.addEventListener('click', () => onShowDashboard());
+        }
+
+        if (this.entriesBtn) {
+            this.entriesBtn.addEventListener('click', () => onShowEntries());
+        }
+
+        if (this.calendarBtn) {
+            this.calendarBtn.addEventListener('click', () => onShowCalendar());
+        }
     }
 
     toggleView(view) {
+        const missingViews = [];
+        if (!this.entriesView) missingViews.push('entriesView');
+        if (!this.dashboardView) missingViews.push('dashboardView');
+        if (!this.calendarView) missingViews.push('calendarView');
+
+        if (missingViews.length > 0) {
+            console.error(`Cannot toggle view: The following view elements are missing: ${missingViews.join(', ')}`);
+            return;
+        }
+
         if (view === 'entries') {
             this.entriesView.classList.remove('hidden');
             this.dashboardView.classList.add('hidden');
             this.calendarView.classList.add('hidden');
-            this.entriesBtn.classList.add('bg-teal-600', 'text-white');
-            this.entriesBtn.classList.remove('bg-white', 'text-gray-800');
-            this.dashboardBtn.classList.add('bg-white', 'text-gray-800');
-            this.dashboardBtn.classList.remove('bg-teal-600', 'text-white');
-            this.calendarBtn.classList.add('bg-white', 'text-gray-800');
-            this.calendarBtn.classList.remove('bg-teal-600', 'text-white');
+            this.entriesBtn?.classList.add('bg-teal-600', 'text-white');
+            this.entriesBtn?.classList.remove('bg-white', 'text-gray-800');
+            this.dashboardBtn?.classList.add('bg-white', 'text-gray-800');
+            this.dashboardBtn?.classList.remove('bg-teal-600', 'text-white');
+            this.calendarBtn?.classList.add('bg-white', 'text-gray-800');
+            this.calendarBtn?.classList.remove('bg-teal-600', 'text-white');
         } else if (view === 'dashboard') {
             this.entriesView.classList.add('hidden');
             this.dashboardView.classList.remove('hidden');
             this.calendarView.classList.add('hidden');
-            this.dashboardBtn.classList.add('bg-teal-600', 'text-white');
-            this.dashboardBtn.classList.remove('bg-white', 'text-gray-800');
-            this.entriesBtn.classList.add('bg-white', 'text-gray-800');
-            this.entriesBtn.classList.remove('bg-teal-600', 'text-white');
-            this.calendarBtn.classList.add('bg-white', 'text-gray-800');
-            this.calendarBtn.classList.remove('bg-teal-600', 'text-white');
+            this.dashboardBtn?.classList.add('bg-teal-600', 'text-white');
+            this.dashboardBtn?.classList.remove('bg-white', 'text-gray-800');
+            this.entriesBtn?.classList.add('bg-white', 'text-gray-800');
+            this.entriesBtn?.classList.remove('bg-teal-600', 'text-white');
+            this.calendarBtn?.classList.add('bg-white', 'text-gray-800');
+            this.calendarBtn?.classList.remove('bg-teal-600', 'text-white');
         } else {
             this.entriesView.classList.add('hidden');
             this.dashboardView.classList.add('hidden');
             this.calendarView.classList.remove('hidden');
-            this.calendarBtn.classList.add('bg-teal-600', 'text-white');
-            this.calendarBtn.classList.remove('bg-white', 'text-gray-800');
-            this.entriesBtn.classList.add('bg-white', 'text-gray-800');
-            this.entriesBtn.classList.remove('bg-teal-600', 'text-white');
-            this.dashboardBtn.classList.add('bg-white', 'text-gray-800');
-            this.dashboardBtn.classList.remove('bg-teal-600', 'text-white');
+            this.calendarBtn?.classList.add('bg-teal-600', 'text-white');
+            this.calendarBtn?.classList.remove('bg-white', 'text-gray-800');
+            this.entriesBtn?.classList.add('bg-white', 'text-gray-800');
+            this.entriesBtn?.classList.remove('bg-teal-600', 'text-white');
+            this.dashboardBtn?.classList.add('bg-white', 'text-gray-800');
+            this.dashboardBtn?.classList.remove('bg-teal-600', 'text-white');
         }
     }
 
     renderMoodChart(moodData, period) {
+        if (!this.moodChartCanvas) {
+            console.error('Mood chart canvas is missing.');
+            return;
+        }
+
         if (this.moodChart) {
             this.moodChart.destroy();
         }
@@ -161,7 +235,7 @@ class UI {
                         ticks: {
                             stepSize: 1,
                             callback: value => {
-                                const moods = { 1: 'Angry', 2: 'Sad', 3: 'Neutral', 4: 'Happy', 5: 'Very Happy' };
+                                const moods = { 1: '1 - Angry', 2: '2 - Sad', 3: '3 - Neutral', 4: '4 - Happy', 5: '5 - Very Happy' };
                                 return moods[value] || value;
                             }
                         }
@@ -185,6 +259,11 @@ class UI {
     }
 
     renderCalendar(events) {
+        if (!this.calendarContainer) {
+            console.error('Calendar container is missing.');
+            return;
+        }
+
         if (this.calendar) {
             this.calendar.destroy();
         }
@@ -198,7 +277,7 @@ class UI {
                 }
             },
             dateClick: info => {
-                if (onCalendarDateClick) {
+                if (typeof onCalendarDateClick === 'function') {
                     onCalendarDateClick(info.dateStr);
                 }
             },
@@ -215,18 +294,26 @@ class UI {
 
     getFormData() {
         return {
-            date: document.getElementById('entry-date').value,
-            title: document.getElementById('entry-title').value.trim(),
-            content: document.getElementById('entry-content').value.trim(),
+            date: document.getElementById('entry-date')?.value || '',
+            title: document.getElementById('entry-title')?.value.trim() || '',
+            content: document.getElementById('entry-content')?.value.trim() || '',
             mood: document.querySelector('input[name="mood"]:checked')?.value || '3'
         };
     }
 
     resetForm() {
-        this.form.reset();
+        if (this.form) {
+            this.form.reset();
+            this.moodLabels.forEach(label => label.classList.remove('active'));
+        }
     }
 
     renderEntries(entries, { filter, searchTerm, selectedMood }) {
+        if (!this.entriesContainer || !this.noEntries) {
+            console.error('Entries container or no-entries element is missing.');
+            return;
+        }
+
         this.entriesContainer.innerHTML = '';
     
         if (entries.length === 0) {
@@ -270,7 +357,7 @@ class UI {
 
         entryElement.innerHTML = `
             <div class="flex justify-between items-start mb-2">
-                <h3 class="text-lg font-medium ">${displayTitle}</h3>
+                <h3 class="text-lg font-medium">${displayTitle}</h3>
                 <div class="flex items-center">
                     <i class="fas ${mood.icon} ${mood.color} text-xl mr-2"></i>
                     <span class="text-sm text-gray-500">${formattedDate}</span>
@@ -300,7 +387,6 @@ class UI {
         return entryElement;
     }
 
-
     highlightText(text, searchTerm) {
         if (!searchTerm || !text) return text;
         
@@ -309,6 +395,11 @@ class UI {
     }
 
     openEntryModal(entry, searchTerm) {
+        if (!this.modal || !this.modalTitle || !this.modalContent) {
+            console.error('Modal elements are missing.');
+            return;
+        }
+
         const entryDate = new Date(entry.date);
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const formattedDate = entryDate.toLocaleDateString(undefined, options);
@@ -347,23 +438,41 @@ class UI {
     }
 
     closeModal() {
-        this.modal.classList.add('hidden');
-        document.body.style.overflow = '';
+        if (this.modal) {
+            this.modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
     }
 
     fillFormWithEntry(entry) {
-        document.getElementById('entry-date').value = entry.date;
-        document.getElementById('entry-title').value = entry.title;
-        document.getElementById('entry-content').value = entry.content;
-        document.querySelector(`input[name="mood"][value="${entry.mood}"]`).checked = true;
+        const dateInput = document.getElementById('entry-date');
+        const titleInput = document.getElementById('entry-title');
+        const contentInput = document.getElementById('entry-content');
+        const moodInput = document.querySelector(`input[name="mood"][value="${entry.mood}"]`);
+        const moodLabel = moodInput ? document.querySelector(`label[for="mood-${entry.mood}"]`) : null;
+
+        if (dateInput) dateInput.value = entry.date;
+        if (titleInput) titleInput.value = entry.title;
+        if (contentInput) contentInput.value = entry.content;
+        if (moodInput) {
+            moodInput.checked = true;
+            if (moodLabel) {
+                this.moodLabels.forEach(label => label.classList.remove('active'));
+                moodLabel.classList.add('active');
+            }
+        }
     }
 
     scrollToTop() {
-        this.entriesContainer.scrollTo(0, 0);
+        if (this.entriesContainer) {
+            this.entriesContainer.scrollTo(0, 0);
+        }
     }
 
     scrollToForm() {
-        this.form.scrollIntoView({ behavior: 'smooth' });
+        if (this.form) {
+            this.form.scrollIntoView({ behavior: 'smooth' });
+        }
     }
 
     exportData(data) {
