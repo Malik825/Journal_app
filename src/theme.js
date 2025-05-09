@@ -1,40 +1,45 @@
 class ThemeManager {
   constructor() {
-      this.themeToggle = document.getElementById('theme-toggle');
-      this.icon = this.themeToggle?.querySelector('i');
-      this.init();
+    this.themeToggle = document.getElementById('theme-toggle');
+    this.icon = this.themeToggle?.querySelector('i');
+    this.init();
   }
 
   init() {
-      if (!this.themeToggle || !this.icon) return;
+    if (!this.themeToggle || !this.icon) return;
 
-      // Set initial theme
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      this.updateButton(savedTheme === 'dark');
+    // Load saved theme or default to light
+    let savedTheme = localStorage.getItem('theme');
+    if (!savedTheme) {
+      // Optionally, check system preference (not required by current tests)
+      savedTheme = 'light'; // Default to light if no saved theme
+    }
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    this.updateButton(savedTheme === 'dark');
 
-      // Add event listener
-      this.themeToggle.addEventListener('click', () => this.toggleTheme());
+    // Add event listener
+    this.themeToggle.addEventListener('click', () => this.toggleTheme());
   }
 
   updateButton(isDark) {
-      if (isDark) {
-          this.icon.classList.replace('fa-moon', 'fa-sun');
-          this.themeToggle.textContent = ' Light Mode';
-      } else {
-          this.icon.classList.replace('fa-sun', 'fa-moon');
-          this.themeToggle.textContent = ' Dark Mode';
-      }
-      this.themeToggle.prepend(this.icon);
+    // Clear existing classes to avoid duplicates
+    this.icon.classList.remove('fa-moon', 'fa-sun');
+    // Update icon and text based on theme
+    if (isDark) {
+      this.icon.classList.add('fa-sun');
+    } else {
+      this.icon.classList.add('fa-moon');
+    }
+    this.themeToggle.prepend(this.icon);
   }
 
   toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      this.updateButton(newTheme === 'dark');
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    this.updateButton(newTheme === 'dark');
   }
 }
 

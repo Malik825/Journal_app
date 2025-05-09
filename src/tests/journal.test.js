@@ -1,8 +1,9 @@
-
 import Storage from '../storage.js';
 import UI from '../Ui.js';
+import ThemeManager from '../theme.js';
+import '@testing-library/jest-dom';
 
-
+// Mock localStorage
 const localStorageMock = (function () {
   let store = {};
   return {
@@ -23,7 +24,7 @@ document.body.innerHTML = `
     <input type="radio" name="mood" value="4" checked />
   </form>
   <div id="entries-container"></div>
-  <div id="no-entries" class="hidden"></div>
+  <div id="no-entries" class="hidden">No entries found</div>
   <select id="filter-select"></select>
   <input id="search-input" />
   <button id="clear-btn"></button>
@@ -50,13 +51,25 @@ document.body.innerHTML = `
   <button id="theme-toggle"><i class="fas fa-moon"></i> Dark Mode</button>
 `;
 
+// Mock window.matchMedia for theme tests
+window.matchMedia = jest.fn().mockImplementation(query => ({
+  matches: query === '(prefers-color-scheme: light)',
+  addListener: jest.fn(),
+  removeListener: jest.fn(),
+}));
+
+// Mock scrollTo for jsdom
+beforeEach(() => {
+  const entriesContainer = document.getElementById('entries-container');
+  entriesContainer.scrollTo = jest.fn();
+});
 
 describe('Mindful Journal', () => {
   describe('Storage', () => {
     let storage;
 
     beforeEach(() => {
-      localStorage.clear();
+      localStorageMock.clear();
       storage = new Storage();
     });
 
@@ -68,7 +81,7 @@ describe('Mindful Journal', () => {
       const entries = [
         { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08', createdAt: '2025-05-08T00:00:00Z' },
       ];
-      localStorage.setItem('journalEntries', JSON.stringify(entries));
+      localStorageMock.setItem('journalEntries', JSON.stringify(entries));
       storage = new Storage();
       expect(storage.getAllEntries()).toEqual(entries);
     });
@@ -84,7 +97,7 @@ describe('Mindful Journal', () => {
       };
       storage.addEntry(entry);
       expect(storage.getAllEntries()).toEqual([entry]);
-      expect(localStorage.setItem).toHaveBeenCalledWith(
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'journalEntries',
         JSON.stringify([entry])
       );
@@ -103,7 +116,7 @@ describe('Mindful Journal', () => {
       const updatedEntry = { ...entry, title: 'Updated Entry', mood: '5' };
       storage.updateEntry('1', updatedEntry);
       expect(storage.getAllEntries()).toEqual([updatedEntry]);
-      expect(localStorage.setItem).toHaveBeenCalledWith(
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'journalEntries',
         JSON.stringify([updatedEntry])
       );
@@ -121,7 +134,7 @@ describe('Mindful Journal', () => {
       storage.addEntry(entry);
       storage.deleteEntry('1');
       expect(storage.getAllEntries()).toEqual([]);
-      expect(localStorage.setItem).toHaveBeenCalledWith('journalEntries', JSON.stringify([]));
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('journalEntries', JSON.stringify([]));
     });
 
     test('should get entry by ID', () => {
@@ -156,9 +169,7 @@ describe('Mindful Journal', () => {
         entries: [entry],
       });
     });
-
   });
-
 
   describe('UI', () => {
     let ui;
@@ -198,13 +209,13 @@ describe('Mindful Journal', () => {
 
     test('should show no entries message when empty', () => {
       ui.renderEntries([], { filter: 'all', searchTerm: '', selectedMood: 'all' });
-      expect(ui.noEntries.classList.contains('hidden')).toBe(false);
+      expect(ui.noEntries).not.toHaveClass('hidden');
     });
 
     test('should open entry modal', () => {
       const entry = { id: '1', title: 'Test', content: 'Content', mood: '4', date: '2025-05-08' };
       ui.openEntryModal(entry, '');
-      expect(ui.modal.classList.contains('hidden')).toBe(false);
+      expect(ui.modal).not.toHaveClass('hidden');
       expect(ui.modalTitle.textContent).toBe('Test');
       expect(ui.modalContent.querySelector('p').textContent).toBe('Content');
     });
@@ -212,7 +223,7 @@ describe('Mindful Journal', () => {
     test('should close modal', () => {
       ui.modal.classList.remove('hidden');
       ui.closeModal();
-      expect(ui.modal.classList.contains('hidden')).toBe(true);
+      expect(ui.modal).toHaveClass('hidden');
     });
 
     test('should fill form with entry data', () => {
@@ -223,55 +234,50 @@ describe('Mindful Journal', () => {
       expect(document.getElementById('entry-content').value).toBe('Content');
       expect(document.querySelector('input[name="mood"][value="4"]').checked).toBe(true);
     });
-
-  
   });
 
   describe('Theme Toggle', () => {
     beforeEach(() => {
-      // Reset theme-related mocks
-      localStorage.clear();
+      localStorageMock.clear();
       document.documentElement.setAttribute('data-theme', 'light');
       const themeToggle = document.getElementById('theme-toggle');
       themeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
     });
 
     test('should initialize with saved theme or system preference', () => {
-      localStorage.setItem('theme', 'dark');
-      document.dispatchEvent(new Event('DOMContentLoaded'));
+      localStorageMock.setItem('theme', 'dark');
+      new ThemeManager();
       expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
       expect(document.getElementById('theme-toggle').textContent).toContain('Light Mode');
       expect(document.querySelector('#theme-toggle i').classList.contains('fa-sun')).toBe(true);
     });
 
     test('should initialize with light theme if no saved preference and system prefers light', () => {
-      window.matchMedia = jest.fn().mockImplementation(query => ({
+      window.matchMedia.mockImplementation(query => ({
         matches: query === '(prefers-color-scheme: light)',
         addListener: jest.fn(),
         removeListener: jest.fn(),
       }));
-      document.dispatchEvent(new Event('DOMContentLoaded'));
+      new ThemeManager();
       expect(document.documentElement.getAttribute('data-theme')).toBe('light');
       expect(document.getElementById('theme-toggle').textContent).toContain('Dark Mode');
       expect(document.querySelector('#theme-toggle i').classList.contains('fa-moon')).toBe(true);
     });
 
     test('should toggle theme on button click', () => {
-      document.dispatchEvent(new Event('DOMContentLoaded'));
+      new ThemeManager();
       const themeToggle = document.getElementById('theme-toggle');
       themeToggle.click();
       expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-      expect(localStorage.setItem).toHaveBeenCalledWith('theme', 'dark');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('theme', 'dark');
       expect(themeToggle.textContent).toContain('Light Mode');
       expect(document.querySelector('#theme-toggle i').classList.contains('fa-sun')).toBe(true);
 
       themeToggle.click();
       expect(document.documentElement.getAttribute('data-theme')).toBe('light');
-      expect(localStorage.setItem).toHaveBeenCalledWith('theme', 'light');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('theme', 'light');
       expect(themeToggle.textContent).toContain('Dark Mode');
       expect(document.querySelector('#theme-toggle i').classList.contains('fa-moon')).toBe(true);
     });
-
-  
   });
 });
